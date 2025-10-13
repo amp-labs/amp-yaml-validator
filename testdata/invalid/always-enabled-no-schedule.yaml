@@ -1,0 +1,11 @@
+specVersion: 1.0.0
+integrations:
+  - name: alwaysEnabledNoSchedule
+    provider: salesforce
+    read:
+      objects:
+        - objectName: account
+          enabled: always
+          destination: webhook
+          requiredFields:
+            - fieldName: name

@@ -1,0 +1,25 @@
+# Test binaries
+*.test
+*.out
+
+# Coverage reports
+coverage.txt
+coverage.html
+
+# macOS metadata
+.DS_Store
+
+# Vendored dependencies
+vendor/
+
+# Editor files
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Build artifacts
+*.exe
+*.dll
+*.so
+*.dylib

@@ -1,0 +1,14 @@
+specVersion: "1.0.0"
+integrations:
+  - name: test-integration
+    provider: no_subscribe_provider
+    read:
+      objects:
+        - objectName: Account
+          destination: my-db
+          schedule: "*/15 * * * *"
+    subscribe:
+      objects:
+        - objectName: Account
+          destination: my-db
+          inheritFieldsAndMapping: true

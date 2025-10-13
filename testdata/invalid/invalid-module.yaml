@@ -1,0 +1,10 @@
+specVersion: "1.0.0"
+integrations:
+  - name: test-integration
+    provider: salesforce
+    module: nonexistent_module
+    read:
+      objects:
+        - objectName: Account
+          destination: my-db
+          schedule: "*/15 * * * *"

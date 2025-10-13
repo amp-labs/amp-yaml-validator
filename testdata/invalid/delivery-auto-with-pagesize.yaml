@@ -1,0 +1,12 @@
+specVersion: 1.0.0
+integrations:
+  - name: invalidDelivery
+    provider: salesforce
+    read:
+      objects:
+        - objectName: account
+          destination: webhook
+          schedule: "*/10 * * * *"
+          delivery:
+            mode: auto
+            pageSize: 100

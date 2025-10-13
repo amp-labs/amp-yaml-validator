@@ -1,0 +1,29 @@
+specVersion: 1.0.0
+integrations:
+  - name: salesforceTooManySubscribe
+    provider: salesforce
+    read:
+      objects:
+        - objectName: account
+          destination: webhook
+          schedule: "*/10 * * * *"
+    subscribe:
+      objects:
+        - objectName: account
+          destination: webhook
+          inheritFieldsAndMapping: true
+        - objectName: contact
+          destination: webhook
+          inheritFieldsAndMapping: true
+        - objectName: lead
+          destination: webhook
+          inheritFieldsAndMapping: true
+        - objectName: opportunity
+          destination: webhook
+          inheritFieldsAndMapping: true
+        - objectName: case
+          destination: webhook
+          inheritFieldsAndMapping: true
+        - objectName: task
+          destination: webhook
+          inheritFieldsAndMapping: true

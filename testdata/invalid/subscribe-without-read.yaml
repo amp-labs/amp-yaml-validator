@@ -1,0 +1,9 @@
+specVersion: 1.0.0
+integrations:
+  - name: subscribeWithoutRead
+    provider: salesforce
+    subscribe:
+      objects:
+        - objectName: account
+          destination: webhook
+          inheritFieldsAndMapping: true

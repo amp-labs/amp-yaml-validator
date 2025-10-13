@@ -1,0 +1,13 @@
+specVersion: 1.0.0
+integrations:
+  - name: invalidBackfill
+    provider: salesforce
+    read:
+      objects:
+        - objectName: account
+          destination: webhook
+          schedule: "*/10 * * * *"
+          backfill:
+            defaultPeriod:
+              days: 30
+              fullHistory: true

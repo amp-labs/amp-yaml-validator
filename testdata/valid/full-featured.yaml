@@ -1,0 +1,40 @@
+specVersion: 1.0.0
+integrations:
+  - name: fullFeatured
+    provider: salesforce
+    read:
+      objects:
+        - objectName: account
+          destination: webhook
+          schedule: "*/10 * * * *"
+          requiredFields:
+            - fieldName: name
+            - fieldName: billingcity
+              mapToName: city
+          optionalFieldsAuto: all
+          backfill:
+            defaultPeriod:
+              days: 30
+          delivery:
+            mode: auto
+        - objectName: contact
+          enabled: always
+          destination: webhook
+          schedule: "*/15 * * * *"
+          requiredFields:
+            - fieldName: name
+            - fieldName: email
+    write:
+      objects:
+        - objectName: account
+        - objectName: contact
+    subscribe:
+      objects:
+        - objectName: account
+          destination: webhook
+          inheritFieldsAndMapping: true
+          updateEvent:
+            enabled: always
+            watchFieldsAuto: all
+    proxy:
+      enabled: true

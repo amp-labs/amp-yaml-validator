@@ -1,0 +1,9 @@
+specVersion: 1.0.0
+integrations:
+  - name: minimal
+    provider: salesforce
+    read:
+      objects:
+        - objectName: account
+          destination: webhook
+          schedule: "*/10 * * * *"
