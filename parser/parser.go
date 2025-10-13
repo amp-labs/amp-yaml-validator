@@ -5,12 +5,13 @@ import (
 
 	"github.com/amp-labs/amp-yaml-validator/openapi"
 	"gopkg.in/yaml.v3"
+	sigsyaml "sigs.k8s.io/yaml"
 )
 
 // ParseYAML parses YAML bytes into a Manifest and builds a position map.
 // It uses a two-pass approach:
-// 1. First pass: Unmarshal into yaml.Node and walk the tree to build position map
-// 2. Second pass: Unmarshal into openapi.Manifest for validation
+// 1. First pass: Unmarshal into yaml.v3.Node and walk the tree to build position map (preserves line/column info)
+// 2. Second pass: Unmarshal into openapi.Manifest using sigs.k8s.io/yaml (handles JSON tags, same as server)
 func ParseYAML(yamlBytes []byte) (*openapi.Manifest, PositionMap, error) {
 	// First pass: Build position map from yaml.Node
 	var node yaml.Node
@@ -21,8 +22,9 @@ func ParseYAML(yamlBytes []byte) (*openapi.Manifest, PositionMap, error) {
 	posMap := buildPositionMap(&node)
 
 	// Second pass: Unmarshal into typed Manifest
+	// Use sigs.k8s.io/yaml which handles JSON tags (same as server)
 	var manifest openapi.Manifest
-	if err := yaml.Unmarshal(yamlBytes, &manifest); err != nil {
+	if err := sigsyaml.Unmarshal(yamlBytes, &manifest); err != nil {
 		return nil, nil, fmt.Errorf("failed to unmarshal into Manifest: %w", err)
 	}
 

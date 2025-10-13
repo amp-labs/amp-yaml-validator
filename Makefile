@@ -36,3 +36,17 @@ format: fix
 .PHONY: test
 test:
 	go test -v ./...
+
+# ====================
+# Build
+# ====================
+.PHONY: build
+build:
+	go build -o amp-yaml-validator ./cmd/amp-yaml-validator
+
+.PHONY: build-all
+build-all:
+	GOOS=linux GOARCH=amd64 go build -o amp-yaml-validator-linux-amd64 ./cmd/amp-yaml-validator
+	GOOS=darwin GOARCH=amd64 go build -o amp-yaml-validator-darwin-amd64 ./cmd/amp-yaml-validator
+	GOOS=darwin GOARCH=arm64 go build -o amp-yaml-validator-darwin-arm64 ./cmd/amp-yaml-validator
+	GOOS=windows GOARCH=amd64 go build -o amp-yaml-validator-windows-amd64.exe ./cmd/amp-yaml-validator

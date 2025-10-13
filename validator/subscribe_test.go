@@ -289,7 +289,7 @@ func TestValidateSubscribe(t *testing.T) {
 			posMap.Set(path+".subscribe.objects[0].inheritFieldsAndMapping", parser.NewPosition(13, 9))
 			posMap.Set(path+".subscribe.objects[0].updateEvent", parser.NewPosition(14, 9))
 
-			ctx := NewValidationContext(nil, posMap, nil)
+			ctx := NewValidationContext(nil, posMap, nil, nil)
 
 			// Validate
 			validateSubscribe(ctx, tt.integration, path)
@@ -417,7 +417,7 @@ func TestValidateSubscribeLineNumbers(t *testing.T) {
 				tt.setupPosMap(posMap, tt.path)
 			}
 
-			ctx := NewValidationContext(nil, posMap, nil)
+			ctx := NewValidationContext(nil, posMap, nil, nil)
 
 			// Validate
 			validateSubscribe(ctx, tt.integration, tt.path)
@@ -496,7 +496,7 @@ func TestValidateSubscribeMultipleObjects(t *testing.T) {
 		posMap.Set(path+".subscribe.objects["+string(rune('0'+i))+"].updateEvent", parser.NewPosition(10+i*10+2, 7))
 	}
 
-	ctx := NewValidationContext(nil, posMap, nil)
+	ctx := NewValidationContext(nil, posMap, nil, nil)
 
 	// Validate
 	validateSubscribe(ctx, integration, path)
@@ -617,7 +617,7 @@ func TestValidateUpdateEvent(t *testing.T) {
 			posMap.Set(path, parser.NewPosition(10, 5))
 			posMap.Set(path+".enabled", parser.NewPosition(11, 7))
 
-			ctx := NewValidationContext(nil, posMap, nil)
+			ctx := NewValidationContext(nil, posMap, nil, nil)
 
 			// Validate
 			validateUpdateEvent(ctx, tt.updateEvent, path)
@@ -708,7 +708,7 @@ func TestValidateSubscribeRequiredFields(t *testing.T) {
 			posMap.Set(path+".subscribe.objects[0].objectName", parser.NewPosition(11, 7))
 			posMap.Set(path+".subscribe.objects[0].destination", parser.NewPosition(12, 7))
 
-			ctx := NewValidationContext(nil, posMap, nil)
+			ctx := NewValidationContext(nil, posMap, nil, nil)
 
 			// Create a minimal integration for the test
 			integration := openapi.Integration{

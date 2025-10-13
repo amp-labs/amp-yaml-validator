@@ -82,7 +82,7 @@ func TestValidateSpecVersion(t *testing.T) {
 			}
 
 			// Create validation context
-			ctx := NewValidationContext(manifest, posMap, nil)
+			ctx := NewValidationContext(manifest, posMap, nil, nil)
 
 			// Validate spec version
 			validateSpecVersion(ctx)
@@ -155,7 +155,7 @@ func TestValidateSpecVersionLineNumbers(t *testing.T) {
 			posMap.Set("$.specVersion", parser.NewPosition(tt.line, tt.column))
 
 			// Create validation context
-			ctx := NewValidationContext(manifest, posMap, nil)
+			ctx := NewValidationContext(manifest, posMap, nil, nil)
 
 			// Validate
 			validateSpecVersion(ctx)

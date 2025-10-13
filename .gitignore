@@ -23,3 +23,5 @@ vendor/
 *.dll
 *.so
 *.dylib
+
+/amp-yaml-validator

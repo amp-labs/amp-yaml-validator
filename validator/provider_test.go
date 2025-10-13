@@ -171,11 +171,7 @@ func TestValidateProviderCapabilities(t *testing.T) {
 			}
 
 			// Create validation context
-			ctx := NewValidationContext(
-				&openapi.Manifest{},
-				parser.NewPositionMap(),
-				mockCatalog,
-			)
+			ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), mockCatalog, nil)
 
 			// Validate
 			validateProviderCapabilities(ctx, integration, "$.integrations[0]")
@@ -258,11 +254,7 @@ func TestValidateSalesforceSubscribeLimit(t *testing.T) {
 			}
 
 			// Create validation context
-			ctx := NewValidationContext(
-				&openapi.Manifest{},
-				parser.NewPositionMap(),
-				nil, // No catalog needed for this test
-			)
+			ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), nil, nil) // No catalog needed for this test
 
 			// Validate
 			validateSalesforceRules(ctx, integration, "$.integrations[0]")
@@ -438,11 +430,7 @@ func TestValidateModuleSupport(t *testing.T) {
 			}
 
 			// Create validation context
-			ctx := NewValidationContext(
-				&openapi.Manifest{},
-				parser.NewPositionMap(),
-				mockCatalog,
-			)
+			ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), mockCatalog, nil)
 
 			// Validate
 			validateModuleSupport(ctx, integration, "$.integrations[0]")
@@ -492,11 +480,7 @@ func TestValidateProviderNotFound(t *testing.T) {
 		},
 	}
 
-	ctx := NewValidationContext(
-		&openapi.Manifest{},
-		parser.NewPositionMap(),
-		mockCatalog,
-	)
+	ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), mockCatalog, nil)
 
 	validateProviderCapabilities(ctx, integration, "$.integrations[0]")
 

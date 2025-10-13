@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/amp-labs/amp-yaml-validator/catalog"
+	"github.com/amp-labs/amp-yaml-validator/checker"
 	"github.com/amp-labs/amp-yaml-validator/openapi"
 	"github.com/amp-labs/amp-yaml-validator/parser"
 	"github.com/amp-labs/amp-yaml-validator/types"
@@ -12,24 +13,31 @@ import (
 
 // ValidationContext holds the state during validation.
 type ValidationContext struct {
-	Manifest        *openapi.Manifest       // The parsed manifest to validate
-	PositionMap     parser.PositionMap      // Map of YAML paths to line/column positions
-	Issues          []types.ValidationIssue // Accumulated validation issues
-	CatalogProvider catalog.CatalogProvider // Provider catalog access
+	Manifest            *openapi.Manifest          // The parsed manifest to validate
+	PositionMap         parser.PositionMap         // Map of YAML paths to line/column positions
+	Issues              []types.ValidationIssue    // Accumulated validation issues
+	CatalogProvider     catalog.CatalogProvider    // Provider catalog access
+	DestinationChecker  checker.DestinationChecker // Optional destination checker for async validation
 }
 
 // NewValidationContext creates a new validation context.
-func NewValidationContext(manifest *openapi.Manifest, posMap parser.PositionMap, catalogProvider catalog.CatalogProvider) *ValidationContext {
+func NewValidationContext(
+	manifest *openapi.Manifest,
+	posMap parser.PositionMap,
+	catalogProvider catalog.CatalogProvider,
+	destinationChecker checker.DestinationChecker,
+) *ValidationContext {
 	// Use default catalog provider if none provided
 	if catalogProvider == nil {
 		catalogProvider = catalog.NewDefaultCatalogProvider()
 	}
 
 	return &ValidationContext{
-		Manifest:        manifest,
-		PositionMap:     posMap,
-		Issues:          []types.ValidationIssue{},
-		CatalogProvider: catalogProvider,
+		Manifest:           manifest,
+		PositionMap:        posMap,
+		Issues:             []types.ValidationIssue{},
+		CatalogProvider:    catalogProvider,
+		DestinationChecker: destinationChecker, // Can be nil
 	}
 }
 

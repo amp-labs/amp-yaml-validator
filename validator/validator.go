@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/amp-labs/amp-yaml-validator/catalog"
+	"github.com/amp-labs/amp-yaml-validator/checker"
 	"github.com/amp-labs/amp-yaml-validator/openapi"
 	"github.com/amp-labs/amp-yaml-validator/parser"
 	"github.com/amp-labs/amp-yaml-validator/types"
@@ -16,6 +17,7 @@ type Validator struct {
 	skipProviderValidation bool
 	skipAsyncValidation    bool
 	catalogProvider        catalog.CatalogProvider
+	destinationChecker     checker.DestinationChecker
 }
 
 // Option is a functional option for configuring the Validator.
@@ -49,13 +51,23 @@ func WithCatalogProvider(provider catalog.CatalogProvider) Option {
 	}
 }
 
+// WithDestinationChecker injects a custom destination checker for validating destinations.
+// This allows client-side and server-side implementations to provide their own logic
+// for checking if destinations exist and are accessible.
+func WithDestinationChecker(checker checker.DestinationChecker) Option {
+	return func(v *Validator) {
+		v.destinationChecker = checker
+	}
+}
+
 // NewValidator creates a new validator with the given options.
 func NewValidator(opts ...Option) *Validator {
 	v := &Validator{
 		strictMode:             false,
 		skipProviderValidation: false,
 		skipAsyncValidation:    false,
-		catalogProvider:        nil, // Will use default if not provided
+		catalogProvider:        nil,        // Will use default if not provided
+		destinationChecker:     nil,        // Optional, nil by default
 	}
 	for _, opt := range opts {
 		opt(v)
@@ -81,7 +93,7 @@ func (v *Validator) ValidateBytes(yamlBytes []byte) (*types.ValidationResult, er
 	}
 
 	// Create validation context
-	ctx := NewValidationContext(manifest, posMap, v.catalogProvider)
+	ctx := NewValidationContext(manifest, posMap, v.catalogProvider, v.destinationChecker)
 
 	// Run all validators
 	v.runValidators(ctx)
@@ -106,7 +118,7 @@ func (v *Validator) ValidateBytes(yamlBytes []byte) (*types.ValidationResult, er
 func (v *Validator) ValidateManifest(manifest *openapi.Manifest) (*types.ValidationResult, error) {
 	// Create empty position map (line numbers will be 0)
 	posMap := parser.NewPositionMap()
-	ctx := NewValidationContext(manifest, posMap, v.catalogProvider)
+	ctx := NewValidationContext(manifest, posMap, v.catalogProvider, v.destinationChecker)
 
 	// Run all validators
 	v.runValidators(ctx)
@@ -138,8 +150,8 @@ func (v *Validator) runValidators(ctx *ValidationContext) {
 		validateProviderSpecific(ctx)
 	}
 
-	// Async validation (Phase 3 future work)
-	// if !v.skipAsyncValidation {
-	// 	validateAsyncRisks(ctx)
-	// }
+	// Async error prevention validation
+	if !v.skipAsyncValidation {
+		validateAsyncRisks(ctx)
+	}
 }

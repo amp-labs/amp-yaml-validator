@@ -115,7 +115,7 @@ func TestValidateBackfill(t *testing.T) {
 			posMap.Set(path+".defaultPeriod.days", parser.NewPosition(12, 7))
 			posMap.Set(path+".defaultPeriod.fullHistory", parser.NewPosition(13, 7))
 
-			ctx := NewValidationContext(nil, posMap, nil)
+			ctx := NewValidationContext(nil, posMap, nil, nil)
 
 			// Validate
 			validateBackfill(ctx, tt.backfill, path)
@@ -197,7 +197,7 @@ func TestValidateBackfillLineNumbers(t *testing.T) {
 				tt.setupPosMap(posMap, tt.path)
 			}
 
-			ctx := NewValidationContext(nil, posMap, nil)
+			ctx := NewValidationContext(nil, posMap, nil, nil)
 
 			// Validate
 			validateBackfill(ctx, tt.backfill, tt.path)
@@ -289,7 +289,7 @@ func TestValidateBackfillMultipleObjects(t *testing.T) {
 		}
 	}
 
-	ctx := NewValidationContext(nil, posMap, nil)
+	ctx := NewValidationContext(nil, posMap, nil, nil)
 
 	// Validate all backfills
 	for _, b := range backfills {
@@ -392,7 +392,7 @@ func TestValidateBackfillDaysValues(t *testing.T) {
 			path := "$.backfill"
 			posMap.Set(path+".defaultPeriod", parser.NewPosition(10, 5))
 
-			ctx := NewValidationContext(nil, posMap, nil)
+			ctx := NewValidationContext(nil, posMap, nil, nil)
 			validateBackfill(ctx, backfill, path)
 
 			errors := ctx.GetErrors()
@@ -427,7 +427,7 @@ func TestValidateBackfillMutualExclusivity(t *testing.T) {
 	path := "$.integrations[0].read.objects[0].backfill"
 	posMap.Set(path+".defaultPeriod", parser.NewPosition(15, 5))
 
-	ctx := NewValidationContext(nil, posMap, nil)
+	ctx := NewValidationContext(nil, posMap, nil, nil)
 	validateBackfill(ctx, backfill, path)
 
 	errors := ctx.GetErrors()
@@ -457,7 +457,7 @@ func TestValidateBackfillRequiredField(t *testing.T) {
 	path := "$.integrations[0].read.objects[0].backfill"
 	posMap.Set(path+".defaultPeriod", parser.NewPosition(15, 5))
 
-	ctx := NewValidationContext(nil, posMap, nil)
+	ctx := NewValidationContext(nil, posMap, nil, nil)
 	validateBackfill(ctx, backfill, path)
 
 	errors := ctx.GetErrors()
@@ -516,7 +516,7 @@ func TestValidateBackfillPathValidation(t *testing.T) {
 			posMap := parser.NewPositionMap()
 			posMap.Set(tt.path+".defaultPeriod", parser.NewPosition(10, 5))
 
-			ctx := NewValidationContext(nil, posMap, nil)
+			ctx := NewValidationContext(nil, posMap, nil, nil)
 			validateBackfill(ctx, tt.backfill, tt.path)
 
 			errors := ctx.GetErrors()
