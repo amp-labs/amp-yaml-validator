@@ -131,7 +131,7 @@ func TestValidateDeliveryMode(t *testing.T) {
 			posMap.Set(path+".mode", parser.NewPosition(11, 5))
 			posMap.Set(path+".pageSize", parser.NewPosition(12, 5))
 
-			ctx := NewValidationContext(nil, posMap, nil, nil)
+			ctx := NewValidationContext(nil, posMap, nil, nil, nil, nil)
 
 			// Validate
 			validateDeliveryMode(ctx, tt.delivery, path)
@@ -226,7 +226,7 @@ func TestValidateDeliveryModeLineNumbers(t *testing.T) {
 				tt.setupPosMap(posMap, tt.path)
 			}
 
-			ctx := NewValidationContext(nil, posMap, nil, nil)
+			ctx := NewValidationContext(nil, posMap, nil, nil, nil, nil)
 
 			// Validate
 			validateDeliveryMode(ctx, tt.delivery, tt.path)
@@ -315,7 +315,7 @@ func TestValidateDeliveryModePageSizeBoundaries(t *testing.T) {
 			path := "$.delivery"
 			posMap.Set(path+".pageSize", parser.NewPosition(10, 5))
 
-			ctx := NewValidationContext(nil, posMap, nil, nil)
+			ctx := NewValidationContext(nil, posMap, nil, nil, nil, nil)
 			validateDeliveryMode(ctx, delivery, path)
 
 			errors := ctx.GetErrors()
@@ -378,7 +378,7 @@ func TestValidateDeliveryModeMultipleObjects(t *testing.T) {
 		posMap.Set(d.path+".pageSize", parser.NewPosition(d.line, 5))
 	}
 
-	ctx := NewValidationContext(nil, posMap, nil, nil)
+	ctx := NewValidationContext(nil, posMap, nil, nil, nil, nil)
 
 	// Validate all deliveries
 	for _, d := range deliveries {
@@ -471,7 +471,7 @@ func TestValidateDeliveryModeSuggestions(t *testing.T) {
 			path := "$.delivery"
 			posMap.Set(path+".pageSize", parser.NewPosition(10, 5))
 
-			ctx := NewValidationContext(nil, posMap, nil, nil)
+			ctx := NewValidationContext(nil, posMap, nil, nil, nil, nil)
 			validateDeliveryMode(ctx, tt.delivery, path)
 
 			errors := ctx.GetErrors()

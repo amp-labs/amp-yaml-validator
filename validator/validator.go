@@ -18,6 +18,8 @@ type Validator struct {
 	skipAsyncValidation    bool
 	catalogProvider        catalog.CatalogProvider
 	destinationChecker     checker.DestinationChecker
+	providerAppChecker     checker.ProviderAppChecker
+	rateLimitChecker       checker.RateLimitChecker
 }
 
 // Option is a functional option for configuring the Validator.
@@ -60,14 +62,34 @@ func WithDestinationChecker(checker checker.DestinationChecker) Option {
 	}
 }
 
+// WithProviderAppChecker injects a custom provider app checker for validating provider credentials.
+// This allows client-side and server-side implementations to provide their own logic
+// for checking if provider apps/OAuth credentials are configured.
+func WithProviderAppChecker(checker checker.ProviderAppChecker) Option {
+	return func(v *Validator) {
+		v.providerAppChecker = checker
+	}
+}
+
+// WithRateLimitChecker injects a custom rate limit checker for provider-specific rate limit info.
+// This allows implementations to provide provider-specific or account-specific rate limit
+// recommendations for schedule validation.
+func WithRateLimitChecker(checker checker.RateLimitChecker) Option {
+	return func(v *Validator) {
+		v.rateLimitChecker = checker
+	}
+}
+
 // NewValidator creates a new validator with the given options.
 func NewValidator(opts ...Option) *Validator {
 	v := &Validator{
 		strictMode:             false,
 		skipProviderValidation: false,
 		skipAsyncValidation:    false,
-		catalogProvider:        nil,        // Will use default if not provided
-		destinationChecker:     nil,        // Optional, nil by default
+		catalogProvider:        nil, // Will use default if not provided
+		destinationChecker:     nil, // Optional, nil by default
+		providerAppChecker:     nil, // Optional, nil by default
+		rateLimitChecker:       nil, // Optional, nil by default
 	}
 	for _, opt := range opts {
 		opt(v)
@@ -93,7 +115,7 @@ func (v *Validator) ValidateBytes(yamlBytes []byte) (*types.ValidationResult, er
 	}
 
 	// Create validation context
-	ctx := NewValidationContext(manifest, posMap, v.catalogProvider, v.destinationChecker)
+	ctx := NewValidationContext(manifest, posMap, v.catalogProvider, v.destinationChecker, v.providerAppChecker, v.rateLimitChecker)
 
 	// Run all validators
 	v.runValidators(ctx)
@@ -118,7 +140,7 @@ func (v *Validator) ValidateBytes(yamlBytes []byte) (*types.ValidationResult, er
 func (v *Validator) ValidateManifest(manifest *openapi.Manifest) (*types.ValidationResult, error) {
 	// Create empty position map (line numbers will be 0)
 	posMap := parser.NewPositionMap()
-	ctx := NewValidationContext(manifest, posMap, v.catalogProvider, v.destinationChecker)
+	ctx := NewValidationContext(manifest, posMap, v.catalogProvider, v.destinationChecker, v.providerAppChecker, v.rateLimitChecker)
 
 	// Run all validators
 	v.runValidators(ctx)

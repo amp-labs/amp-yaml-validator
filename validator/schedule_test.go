@@ -149,7 +149,7 @@ func TestValidateSchedule(t *testing.T) {
 			path := "$.integrations[0].read.objects[0].schedule"
 			posMap.Set(path, parser.NewPosition(10, 5))
 
-			ctx := NewValidationContext(nil, posMap, nil, nil)
+			ctx := NewValidationContext(nil, posMap, nil, nil, nil, nil)
 
 			// Validate schedule
 			validateSchedule(ctx, tt.schedule, path)
@@ -220,7 +220,7 @@ func TestValidateScheduleLineNumbers(t *testing.T) {
 			posMap.Set(tt.path, parser.NewPosition(tt.line, tt.column))
 
 			// Create validation context
-			ctx := NewValidationContext(nil, posMap, nil, nil)
+			ctx := NewValidationContext(nil, posMap, nil, nil, nil, nil)
 
 			// Validate
 			validateSchedule(ctx, tt.schedule, tt.path)
@@ -267,7 +267,7 @@ func TestValidateScheduleMultipleObjects(t *testing.T) {
 		posMap.Set(s.path, parser.NewPosition(s.line, 5))
 	}
 
-	ctx := NewValidationContext(nil, posMap, nil, nil)
+	ctx := NewValidationContext(nil, posMap, nil, nil, nil, nil)
 
 	// Validate all schedules
 	for _, s := range schedules {
@@ -348,7 +348,7 @@ func TestValidateScheduleRuleTypes(t *testing.T) {
 			path := "$.schedule"
 			posMap.Set(path, parser.NewPosition(1, 1))
 
-			ctx := NewValidationContext(nil, posMap, nil, nil)
+			ctx := NewValidationContext(nil, posMap, nil, nil, nil, nil)
 			validateSchedule(ctx, tt.schedule, path)
 
 			errors := ctx.GetErrors()
@@ -431,7 +431,7 @@ func TestValidateScheduleEdgeCases(t *testing.T) {
 			path := "$.schedule"
 			posMap.Set(path, parser.NewPosition(1, 1))
 
-			ctx := NewValidationContext(nil, posMap, nil, nil)
+			ctx := NewValidationContext(nil, posMap, nil, nil, nil, nil)
 			validateSchedule(ctx, tt.schedule, path)
 
 			errors := ctx.GetErrors()

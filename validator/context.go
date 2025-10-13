@@ -13,11 +13,13 @@ import (
 
 // ValidationContext holds the state during validation.
 type ValidationContext struct {
-	Manifest            *openapi.Manifest          // The parsed manifest to validate
-	PositionMap         parser.PositionMap         // Map of YAML paths to line/column positions
-	Issues              []types.ValidationIssue    // Accumulated validation issues
-	CatalogProvider     catalog.CatalogProvider    // Provider catalog access
-	DestinationChecker  checker.DestinationChecker // Optional destination checker for async validation
+	Manifest            *openapi.Manifest             // The parsed manifest to validate
+	PositionMap         parser.PositionMap            // Map of YAML paths to line/column positions
+	Issues              []types.ValidationIssue       // Accumulated validation issues
+	CatalogProvider     catalog.CatalogProvider       // Provider catalog access
+	DestinationChecker  checker.DestinationChecker    // Optional destination checker for async validation
+	ProviderAppChecker  checker.ProviderAppChecker    // Optional provider app/credentials checker
+	RateLimitChecker    checker.RateLimitChecker      // Optional rate limit checker
 }
 
 // NewValidationContext creates a new validation context.
@@ -26,6 +28,8 @@ func NewValidationContext(
 	posMap parser.PositionMap,
 	catalogProvider catalog.CatalogProvider,
 	destinationChecker checker.DestinationChecker,
+	providerAppChecker checker.ProviderAppChecker,
+	rateLimitChecker checker.RateLimitChecker,
 ) *ValidationContext {
 	// Use default catalog provider if none provided
 	if catalogProvider == nil {
@@ -38,6 +42,8 @@ func NewValidationContext(
 		Issues:             []types.ValidationIssue{},
 		CatalogProvider:    catalogProvider,
 		DestinationChecker: destinationChecker, // Can be nil
+		ProviderAppChecker: providerAppChecker, // Can be nil
+		RateLimitChecker:   rateLimitChecker,   // Can be nil
 	}
 }
 

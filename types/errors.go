@@ -57,6 +57,8 @@ const (
 	RuleProviderNotSupported        = "provider-not-supported"
 	RuleCatalogAccess               = "catalog-access"
 	RuleObjectExists                = "object-exists"
+	RuleProviderAppNotConfigured    = "provider-app-not-configured"
+	RuleRateLimitExceeded           = "rate-limit-exceeded"
 )
 
 // Constants for validation rules
