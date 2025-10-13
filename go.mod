@@ -6,13 +6,13 @@ toolchain go1.24.6
 
 require (
 	github.com/adhocore/gronx v1.19.6
+	github.com/amp-labs/connectors v0.0.0-20251010235100-8191ba72571c
 	github.com/go-playground/validator/v10 v10.28.0
 	github.com/oapi-codegen/runtime v1.1.2
 	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
-	github.com/amp-labs/connectors v0.0.0-20251010235100-8191ba72571c // indirect
 	github.com/antchfx/xmlquery v1.4.3 // indirect
 	github.com/antchfx/xpath v1.3.3 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
