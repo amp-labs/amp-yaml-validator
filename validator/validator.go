@@ -109,13 +109,13 @@ func (v *Validator) ValidateFile(yamlPath string) (*types.ValidationResult, erro
 // ValidateBytes validates YAML bytes.
 func (v *Validator) ValidateBytes(yamlBytes []byte) (*types.ValidationResult, error) {
 	// Parse YAML
-	manifest, posMap, err := parser.ParseYAML(yamlBytes)
+	manifest, posMap, dirMap, err := parser.ParseYAML(yamlBytes)
 	if err != nil {
 		return nil, err
 	}
 
 	// Create validation context
-	ctx := NewValidationContext(manifest, posMap, v.catalogProvider, v.destinationChecker, v.providerAppChecker, v.rateLimitChecker)
+	ctx := NewValidationContext(manifest, posMap, dirMap, v.catalogProvider, v.destinationChecker, v.providerAppChecker, v.rateLimitChecker)
 
 	// Run all validators
 	v.runValidators(ctx)
@@ -138,9 +138,10 @@ func (v *Validator) ValidateBytes(yamlBytes []byte) (*types.ValidationResult, er
 
 // ValidateManifest validates an already-parsed manifest.
 func (v *Validator) ValidateManifest(manifest *openapi.Manifest) (*types.ValidationResult, error) {
-	// Create empty position map (line numbers will be 0)
+	// Create empty position map and directive map (line numbers will be 0, no directives)
 	posMap := parser.NewPositionMap()
-	ctx := NewValidationContext(manifest, posMap, v.catalogProvider, v.destinationChecker, v.providerAppChecker, v.rateLimitChecker)
+	dirMap := parser.NewDirectiveMap()
+	ctx := NewValidationContext(manifest, posMap, dirMap, v.catalogProvider, v.destinationChecker, v.providerAppChecker, v.rateLimitChecker)
 
 	// Run all validators
 	v.runValidators(ctx)

@@ -1,0 +1,43 @@
+# Full-featured example with amp:ignore directives
+specVersion: 1.0.0
+integrations:
+  - name: fullFeatured
+    provider: salesforce
+    read:
+      objects:
+        - objectName: account
+          destination: webhook  # amp:ignore[destination-exists]
+          schedule: "*/10 * * * *"
+          requiredFields:
+            - fieldName: name
+            - fieldName: billingcity
+              mapToName: city
+          optionalFieldsAuto: all
+          backfill:
+            defaultPeriod:
+              days: 30
+          delivery:
+            mode: auto
+        - objectName: contact
+          enabled: always
+          destination: webhook  # amp:ignore[destination-exists]
+          schedule: "*/15 * * * *"
+          requiredFields:
+            - fieldName: name
+            - fieldName: email
+    write:
+      # Suppress catalog warnings for write objects (we know they're valid)
+      # amp:ignore[catalog-access]
+      objects:
+        - objectName: account
+        - objectName: contact
+    subscribe:
+      objects:
+        - objectName: account
+          destination: webhook  # amp:ignore[destination-exists]
+          inheritFieldsAndMapping: true
+          updateEvent:
+            enabled: always
+            watchFieldsAuto: all
+    proxy:
+      enabled: true

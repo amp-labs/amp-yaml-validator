@@ -130,7 +130,7 @@ func TestValidateAlwaysEnabledObject(t *testing.T) {
 				}
 			}
 
-			ctx := NewValidationContext(nil, posMap, nil, nil, nil, nil)
+			ctx := NewValidationContext(nil, posMap, parser.NewDirectiveMap(), nil, nil, nil, nil)
 
 			// Validate
 			validateAlwaysEnabledObject(ctx, tt.object, path)
@@ -223,7 +223,7 @@ func TestValidateAlwaysEnabledObjectLineNumbers(t *testing.T) {
 				tt.setupPosMap(posMap, tt.path)
 			}
 
-			ctx := NewValidationContext(nil, posMap, nil, nil, nil, nil)
+			ctx := NewValidationContext(nil, posMap, parser.NewDirectiveMap(), nil, nil, nil, nil)
 
 			// Validate
 			validateAlwaysEnabledObject(ctx, tt.object, tt.path)
@@ -272,7 +272,7 @@ func TestValidateAlwaysEnabledObjectMultipleFields(t *testing.T) {
 		posMap.Set(path+".requiredFields["+string(rune(i+48))+"].mapToName", parser.NewPosition(20+i, 7))
 	}
 
-	ctx := NewValidationContext(nil, posMap, nil, nil, nil, nil)
+	ctx := NewValidationContext(nil, posMap, parser.NewDirectiveMap(), nil, nil, nil, nil)
 
 	// Validate
 	validateAlwaysEnabledObject(ctx, object, path)
@@ -331,7 +331,7 @@ func TestValidateAlwaysEnabledObjectPathValidation(t *testing.T) {
 			t.Parallel()
 
 			posMap := parser.NewPositionMap()
-			ctx := NewValidationContext(nil, posMap, nil, nil, nil, nil)
+			ctx := NewValidationContext(nil, posMap, parser.NewDirectiveMap(), nil, nil, nil, nil)
 
 			validateAlwaysEnabledObject(ctx, tt.object, tt.path)
 

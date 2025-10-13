@@ -15,6 +15,7 @@ import (
 type ValidationContext struct {
 	Manifest            *openapi.Manifest             // The parsed manifest to validate
 	PositionMap         parser.PositionMap            // Map of YAML paths to line/column positions
+	DirectiveMap        parser.DirectiveMap           // Map of amp:ignore directives for suppressing warnings
 	Issues              []types.ValidationIssue       // Accumulated validation issues
 	CatalogProvider     catalog.CatalogProvider       // Provider catalog access
 	DestinationChecker  checker.DestinationChecker    // Optional destination checker for async validation
@@ -26,6 +27,7 @@ type ValidationContext struct {
 func NewValidationContext(
 	manifest *openapi.Manifest,
 	posMap parser.PositionMap,
+	dirMap parser.DirectiveMap,
 	catalogProvider catalog.CatalogProvider,
 	destinationChecker checker.DestinationChecker,
 	providerAppChecker checker.ProviderAppChecker,
@@ -39,6 +41,7 @@ func NewValidationContext(
 	return &ValidationContext{
 		Manifest:           manifest,
 		PositionMap:        posMap,
+		DirectiveMap:       dirMap,
 		Issues:             []types.ValidationIssue{},
 		CatalogProvider:    catalogProvider,
 		DestinationChecker: destinationChecker, // Can be nil
@@ -62,13 +65,25 @@ func (vc *ValidationContext) AddErrorWithSuggestion(message, path, rule, suggest
 }
 
 // AddWarning adds a warning-level issue to the context.
+// Warnings can be suppressed using amp:ignore directives in the YAML.
 func (vc *ValidationContext) AddWarning(message, path, rule string) {
+	// Check if this warning should be suppressed by an amp:ignore directive
+	if vc.DirectiveMap.ShouldIgnore(path, rule) {
+		return
+	}
+
 	pos := vc.GetPosition(path)
 	vc.Issues = append(vc.Issues, types.NewWarning(message, path, rule, pos.Line, pos.Column))
 }
 
 // AddWarningWithSuggestion adds a warning-level issue with a suggestion.
+// Warnings can be suppressed using amp:ignore directives in the YAML.
 func (vc *ValidationContext) AddWarningWithSuggestion(message, path, rule, suggestion string) {
+	// Check if this warning should be suppressed by an amp:ignore directive
+	if vc.DirectiveMap.ShouldIgnore(path, rule) {
+		return
+	}
+
 	pos := vc.GetPosition(path)
 	issue := types.NewWarning(message, path, rule, pos.Line, pos.Column)
 	issue.Suggestion = suggestion

@@ -125,7 +125,7 @@ func TestValidateObjectNameRead(t *testing.T) {
 			}
 
 			// Create validation context
-			ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), mockCatalog, nil, nil, nil)
+			ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(), mockCatalog, nil, nil, nil)
 
 			// Validate
 			validateRead(ctx, integration, integration.Read, "$.integrations[0]")
@@ -292,7 +292,7 @@ func TestValidateObjectNameWrite(t *testing.T) {
 			}
 
 			// Create validation context
-			ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), mockCatalog, nil, nil, nil)
+			ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(), mockCatalog, nil, nil, nil)
 
 			// Validate
 			validateWrite(ctx, integration, integration.Write, "$.integrations[0]")
@@ -473,7 +473,7 @@ func TestValidateObjectNameSubscribe(t *testing.T) {
 			}
 
 			// Create validation context
-			ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), mockCatalog, nil, nil, nil)
+			ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(), mockCatalog, nil, nil, nil)
 
 			// Validate
 			validateSubscribe(ctx, integration, "$.integrations[0]")
@@ -577,7 +577,7 @@ func TestValidateObjectNameMultipleObjects(t *testing.T) {
 	}
 
 	// Create validation context
-	ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), mockCatalog, nil, nil, nil)
+	ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(), mockCatalog, nil, nil, nil)
 
 	// Validate
 	validateRead(ctx, integration, integration.Read, "$.integrations[0]")
@@ -625,7 +625,7 @@ func TestValidateObjectNameEmptyProvider(t *testing.T) {
 	}
 
 	// Create validation context
-	ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), mockCatalog, nil, nil, nil)
+	ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(), mockCatalog, nil, nil, nil)
 
 	// Validate
 	validateRead(ctx, integration, integration.Read, "$.integrations[0]")

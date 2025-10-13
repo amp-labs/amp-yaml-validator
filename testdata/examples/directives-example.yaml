@@ -1,0 +1,26 @@
+# Example: Using amp:ignore directives to suppress warnings
+specVersion: 1.0.0
+integrations:
+  - name: salesforceIntegration
+    provider: salesforce
+    read:
+      objects:
+        # Suppress frequent-schedule warning for high-priority sync
+        # amp:ignore[frequent-schedule-risk]
+        - objectName: account
+          destination: webhook
+          schedule: "*/5 * * * *"  # Runs every 5 minutes
+
+        # Suppress destination warning for development webhook
+        - objectName: contact
+          destination: dev-webhook  # amp:ignore[destination-exists]
+          schedule: "*/10 * * * *"
+
+        # Suppress all warnings for experimental configuration
+        # amp:ignore
+        - objectName: opportunity
+          destination: temp-webhook
+          schedule: "*/5 * * * *"
+          backfill:
+            defaultPeriod:
+              fullHistory: true
