@@ -219,7 +219,7 @@ func validateBackfillRisks(ctx *ValidationContext) {
 func validateScheduleFrequencyRisks(ctx *ValidationContext) {
 	manifest := ctx.Manifest
 
-	const frequentScheduleThreshold = 15 // minutes
+	const frequentScheduleThreshold = 5 // minutes
 
 	for i, integration := range manifest.Integrations {
 		if integration.Read != nil && integration.Read.Objects != nil {
