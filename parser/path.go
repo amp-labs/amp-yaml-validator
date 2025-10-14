@@ -63,6 +63,7 @@ func (pb *PathBuilder) String() string {
 			builder.WriteString("]")
 		}
 	}
+
 	return builder.String()
 }
 

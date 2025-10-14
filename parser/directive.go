@@ -16,11 +16,6 @@ type Directive struct {
 // DirectiveMap maps YAML paths to directives for suppressing warnings.
 type DirectiveMap map[string]Directive
 
-// NewDirectiveMap creates a new empty directive map.
-func NewDirectiveMap() DirectiveMap {
-	return make(DirectiveMap)
-}
-
 // ShouldIgnore checks if a warning should be ignored for a given path and rule.
 // It checks both exact path matches and parent path matches (prefix matching).
 // For example, a directive on "$.integrations[0].read.objects[0]" will suppress
@@ -110,7 +105,7 @@ func parseDirective(comment string) ([]string, bool) {
 // extractDirectives walks the YAML node tree and extracts amp:ignore directives.
 // It returns a DirectiveMap that maps YAML paths to ignore directives.
 func extractDirectives(node *yaml.Node) DirectiveMap {
-	dirMap := NewDirectiveMap()
+	dirMap := make(DirectiveMap)
 	path := NewPathBuilder()
 	walkNodeForDirectives(node, path, dirMap)
 	return dirMap
