@@ -79,9 +79,9 @@ func (dm DirectiveMap) matchesDirective(path, rule string) bool {
 	return false
 }
 
-// Directive syntax patterns
+// Directive syntax patterns.
 var (
-	// Matches: amp:ignore or amp:ignore[rule1,rule2]
+	// Matches: amp:ignore or amp:ignore[rule1,rule2].
 	directiveRegex = regexp.MustCompile(`amp:ignore(?:\[([^\]]+)\])?`)
 )
 

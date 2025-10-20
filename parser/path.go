@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -39,7 +39,7 @@ func (pb *PathBuilder) PushArray(index int) *PathBuilder {
 	newBuilder := pb.Copy()
 	newBuilder.components = append(newBuilder.components, pathComponent{
 		componentType: "array",
-		name:          fmt.Sprintf("%d", index),
+		name:          strconv.Itoa(index),
 	})
 
 	return newBuilder

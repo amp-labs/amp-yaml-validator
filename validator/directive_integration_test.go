@@ -137,6 +137,7 @@ integrations:
 		for _, error := range result.Errors {
 			if error.Rule == "schedule-minimum-interval" {
 				hasScheduleError = true
+
 				break
 			}
 		}

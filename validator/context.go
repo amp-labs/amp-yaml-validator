@@ -2,7 +2,7 @@ package validator
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	"github.com/amp-labs/amp-yaml-validator/catalog"
 	"github.com/amp-labs/amp-yaml-validator/checker"
@@ -11,6 +11,9 @@ import (
 	"github.com/amp-labs/amp-yaml-validator/types"
 	"github.com/amp-labs/connectors/providers"
 )
+
+// ErrCatalogProviderNotInitialized indicates that the catalog provider was not initialized.
+var ErrCatalogProviderNotInitialized = errors.New("catalog provider not initialized")
 
 // ValidationContext holds the state during validation.
 type ValidationContext struct {
@@ -109,9 +112,12 @@ func (vc *ValidationContext) GetWarnings() []types.ValidationIssue {
 }
 
 // GetProviderInfo retrieves provider information from the catalog.
-func (vc *ValidationContext) GetProviderInfo(ctx context.Context, providerName string) (*providers.ProviderInfo, error) {
+func (vc *ValidationContext) GetProviderInfo(
+	ctx context.Context,
+	providerName string,
+) (*providers.ProviderInfo, error) {
 	if vc.CatalogProvider == nil {
-		return nil, fmt.Errorf("catalog provider not initialized")
+		return nil, ErrCatalogProviderNotInitialized
 	}
 
 	return vc.CatalogProvider.GetProviderInfo(ctx, providerName)

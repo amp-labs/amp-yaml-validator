@@ -10,6 +10,7 @@ import (
 	"github.com/amp-labs/connectors/providers"
 )
 
+//nolint:dupl // Test tables are similar by design but test different action types
 func TestValidateObjectNameRead(t *testing.T) {
 	t.Parallel()
 
@@ -80,8 +81,8 @@ func TestValidateObjectNameRead(t *testing.T) {
 		},
 	}
 
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -127,7 +128,10 @@ func TestValidateObjectNameRead(t *testing.T) {
 			}
 
 			// Create validation context
-			ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(), mockCatalog, nil, nil, nil)
+			ctx := NewValidationContext(
+				&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(),
+				mockCatalog, nil, nil, nil,
+			)
 
 			// Validate
 			validateRead(t.Context(), ctx, integration, integration.Read, "$.integrations[0]")
@@ -159,6 +163,7 @@ func TestValidateObjectNameRead(t *testing.T) {
 				for _, err := range errors {
 					if err.Rule == tt.expectedErrorRule {
 						found = true
+
 						break
 					}
 				}
@@ -175,6 +180,7 @@ func TestValidateObjectNameRead(t *testing.T) {
 				for _, warn := range warnings {
 					if warn.Rule == tt.expectedWarningRule {
 						found = true
+
 						break
 					}
 				}
@@ -187,6 +193,7 @@ func TestValidateObjectNameRead(t *testing.T) {
 	}
 }
 
+//nolint:dupl // Test tables are similar by design but test different action types
 func TestValidateObjectNameWrite(t *testing.T) {
 	t.Parallel()
 
@@ -257,8 +264,8 @@ func TestValidateObjectNameWrite(t *testing.T) {
 		},
 	}
 
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -302,7 +309,10 @@ func TestValidateObjectNameWrite(t *testing.T) {
 			}
 
 			// Create validation context
-			ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(), mockCatalog, nil, nil, nil)
+			ctx := NewValidationContext(
+				&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(),
+				mockCatalog, nil, nil, nil,
+			)
 
 			// Validate
 			validateWrite(t.Context(), ctx, integration, integration.Write, "$.integrations[0]")
@@ -334,6 +344,7 @@ func TestValidateObjectNameWrite(t *testing.T) {
 				for _, err := range errors {
 					if err.Rule == tt.expectedErrorRule {
 						found = true
+
 						break
 					}
 				}
@@ -350,6 +361,7 @@ func TestValidateObjectNameWrite(t *testing.T) {
 				for _, warn := range warnings {
 					if warn.Rule == tt.expectedWarningRule {
 						found = true
+
 						break
 					}
 				}
@@ -362,6 +374,7 @@ func TestValidateObjectNameWrite(t *testing.T) {
 	}
 }
 
+//nolint:dupl // Test tables are similar by design but test different action types
 func TestValidateObjectNameSubscribe(t *testing.T) {
 	t.Parallel()
 
@@ -432,8 +445,8 @@ func TestValidateObjectNameSubscribe(t *testing.T) {
 		},
 	}
 
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -491,7 +504,10 @@ func TestValidateObjectNameSubscribe(t *testing.T) {
 			}
 
 			// Create validation context
-			ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(), mockCatalog, nil, nil, nil)
+			ctx := NewValidationContext(
+				&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(),
+				mockCatalog, nil, nil, nil,
+			)
 
 			// Validate
 			validateSubscribe(t.Context(), ctx, integration, "$.integrations[0]")
@@ -523,6 +539,7 @@ func TestValidateObjectNameSubscribe(t *testing.T) {
 				for _, err := range errors {
 					if err.Rule == tt.expectedErrorRule {
 						found = true
+
 						break
 					}
 				}
@@ -539,6 +556,7 @@ func TestValidateObjectNameSubscribe(t *testing.T) {
 				for _, warn := range warnings {
 					if warn.Rule == tt.expectedWarningRule {
 						found = true
+
 						break
 					}
 				}
@@ -601,7 +619,10 @@ func TestValidateObjectNameMultipleObjects(t *testing.T) {
 	}
 
 	// Create validation context
-	ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(), mockCatalog, nil, nil, nil)
+	ctx := NewValidationContext(
+		&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(),
+		mockCatalog, nil, nil, nil,
+	)
 
 	// Validate
 	validateRead(t.Context(), ctx, integration, integration.Read, "$.integrations[0]")
@@ -650,7 +671,10 @@ func TestValidateObjectNameEmptyProvider(t *testing.T) {
 	}
 
 	// Create validation context
-	ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(), mockCatalog, nil, nil, nil)
+	ctx := NewValidationContext(
+		&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(),
+		mockCatalog, nil, nil, nil,
+	)
 
 	// Validate
 	validateRead(t.Context(), ctx, integration, integration.Read, "$.integrations[0]")

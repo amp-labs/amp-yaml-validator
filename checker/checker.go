@@ -6,11 +6,17 @@ import (
 	"time"
 )
 
-// ErrDestinationNotFound indicates that a destination does not exist or is not accessible
+// ErrDestinationNotFound indicates that a destination does not exist or is not accessible.
 var ErrDestinationNotFound = errors.New("destination not found")
 
-// ErrProviderAppNotFound indicates that a provider app/credentials are not configured
+// ErrProviderAppNotFound indicates that a provider app/credentials are not configured.
 var ErrProviderAppNotFound = errors.New("provider app not found")
+
+// ErrMockNotConfigured indicates that a mock checker was not properly configured.
+var ErrMockNotConfigured = errors.New("mock not configured")
+
+// ErrProviderRateLimitNotFound indicates that rate limit information was not found for a provider.
+var ErrProviderRateLimitNotFound = errors.New("provider rate limit info not found")
 
 // DestinationChecker defines an interface for checking if destinations exist.
 // This abstraction allows different implementations for client-side vs server-side validation.
@@ -46,7 +52,7 @@ func NewMockDestinationChecker(destinations map[string]bool) DestinationChecker 
 // CheckDestination checks if a destination exists in the mock.
 func (m *MockDestinationChecker) CheckDestination(_ context.Context, destinationName string) error {
 	if m.destinations == nil {
-		return errors.New("mock not configured")
+		return ErrMockNotConfigured
 	}
 
 	exists, ok := m.destinations[destinationName]
@@ -91,7 +97,7 @@ func NewMockProviderAppChecker(providerApps map[string]bool) ProviderAppChecker 
 // CheckProviderApp checks if a provider app is configured in the mock.
 func (m *MockProviderAppChecker) CheckProviderApp(_ context.Context, providerName string) error {
 	if m.providerApps == nil {
-		return errors.New("mock not configured")
+		return ErrMockNotConfigured
 	}
 
 	configured, ok := m.providerApps[providerName]
@@ -145,12 +151,12 @@ func NewMockRateLimitChecker(rateLimits map[string]RateLimitInfo) RateLimitCheck
 // GetRateLimitInfo returns rate limit info from the mock.
 func (m *MockRateLimitChecker) GetRateLimitInfo(_ context.Context, providerName string) (*RateLimitInfo, error) {
 	if m.rateLimits == nil {
-		return nil, errors.New("mock not configured")
+		return nil, ErrMockNotConfigured
 	}
 
 	info, ok := m.rateLimits[providerName]
 	if !ok {
-		return nil, errors.New("provider rate limit info not found")
+		return nil, ErrProviderRateLimitNotFound
 	}
 
 	return &info, nil

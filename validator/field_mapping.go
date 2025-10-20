@@ -1,10 +1,7 @@
 package validator
 
 import (
-	"fmt"
-
 	"github.com/amp-labs/amp-yaml-validator/openapi"
-	"github.com/amp-labs/amp-yaml-validator/types"
 )
 
 // validateFieldMappings validates field mappings for uniqueness.
@@ -17,8 +14,6 @@ func validateFieldMappings(ctx *ValidationContext, read *openapi.IntegrationRead
 	_ = ctx
 	_ = read
 	_ = basePath
-
-	return
 	//	if read == nil || read.Objects == nil {
 	//		return
 	//	}
@@ -32,25 +27,4 @@ func validateFieldMappings(ctx *ValidationContext, read *openapi.IntegrationRead
 	//		}
 	//		checkDuplicateMappings(ctx, *obj.SelectedFieldMappings, objectPath)
 	//	}
-}
-
-// checkDuplicateMappings checks for duplicate destination field names in field mappings.
-func checkDuplicateMappings(ctx *ValidationContext, mappings map[string]string, basePath string) {
-	// Track used destination field names
-	usedDestinations := make(map[string]string) // destination -> source
-
-	for sourceField, destField := range mappings {
-		if existingSource, exists := usedDestinations[destField]; exists {
-			// Found a duplicate destination
-			ctx.AddErrorWithSuggestion(
-				fmt.Sprintf("Duplicate field mapping: field '%s' and '%s' both map to '%s'",
-					existingSource, sourceField, destField),
-				fmt.Sprintf("%s.selectedFieldMappings", basePath),
-				types.RuleFieldMappingUnique,
-				fmt.Sprintf("Each destination field name must be unique. Consider using a different name for one of the mappings."),
-			)
-		} else {
-			usedDestinations[destField] = sourceField
-		}
-	}
-}
+} //nolint:wsl // Commented code block

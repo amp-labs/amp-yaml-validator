@@ -118,7 +118,10 @@ func (v *Validator) ValidateBytes(ctx context.Context, yamlBytes []byte) (*types
 	}
 
 	// Create validation context
-	valCtx := NewValidationContext(manifest, posMap, dirMap, v.catalogProvider, v.destinationChecker, v.providerAppChecker, v.rateLimitChecker)
+	valCtx := NewValidationContext(
+		manifest, posMap, dirMap, v.catalogProvider,
+		v.destinationChecker, v.providerAppChecker, v.rateLimitChecker,
+	)
 
 	// Run all validators
 	v.runValidators(ctx, valCtx)
@@ -144,7 +147,10 @@ func (v *Validator) ValidateManifest(ctx context.Context, manifest *openapi.Mani
 	// Create empty position map and directive map (line numbers will be 0, no directives)
 	posMap := parser.NewPositionMap()
 	dirMap := parser.NewDirectiveMap()
-	valCtx := NewValidationContext(manifest, posMap, dirMap, v.catalogProvider, v.destinationChecker, v.providerAppChecker, v.rateLimitChecker)
+	valCtx := NewValidationContext(
+		manifest, posMap, dirMap, v.catalogProvider,
+		v.destinationChecker, v.providerAppChecker, v.rateLimitChecker,
+	)
 
 	// Run all validators
 	v.runValidators(ctx, valCtx)

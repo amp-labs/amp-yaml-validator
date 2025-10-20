@@ -8,6 +8,8 @@ import (
 	"github.com/amp-labs/amp-yaml-validator/types"
 )
 
+const testBackfillPath = "$.integrations[0].read.objects[0].backfill"
+
 func TestValidateBackfill(t *testing.T) {
 	t.Parallel()
 
@@ -100,14 +102,14 @@ func TestValidateBackfill(t *testing.T) {
 		},
 	}
 
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			// Create validation context
 			posMap := parser.NewPositionMap()
-			path := "$.integrations[0].read.objects[0].backfill"
+			path := testBackfillPath
 
 			// Set up positions
 			posMap.Set(path, parser.NewPosition(10, 3))
@@ -122,6 +124,7 @@ func TestValidateBackfill(t *testing.T) {
 
 			// Check errors
 			errors := ctx.GetErrors()
+			//nolint:nestif // Test assertion complexity is acceptable
 			if tt.wantError {
 				if len(errors) == 0 {
 					t.Error("expected error but got none")
@@ -186,8 +189,8 @@ func TestValidateBackfillLineNumbers(t *testing.T) {
 		},
 	}
 
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -379,8 +382,8 @@ func TestValidateBackfillDaysValues(t *testing.T) {
 		},
 	}
 
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -427,7 +430,7 @@ func TestValidateBackfillMutualExclusivity(t *testing.T) {
 	}
 
 	posMap := parser.NewPositionMap()
-	path := "$.integrations[0].read.objects[0].backfill"
+	path := testBackfillPath
 	posMap.Set(path+".defaultPeriod", parser.NewPosition(15, 5))
 
 	ctx := NewValidationContext(nil, posMap, parser.NewDirectiveMap(), nil, nil, nil, nil)
@@ -457,7 +460,7 @@ func TestValidateBackfillRequiredField(t *testing.T) {
 	}
 
 	posMap := parser.NewPositionMap()
-	path := "$.integrations[0].read.objects[0].backfill"
+	path := testBackfillPath
 	posMap.Set(path+".defaultPeriod", parser.NewPosition(15, 5))
 
 	ctx := NewValidationContext(nil, posMap, parser.NewDirectiveMap(), nil, nil, nil, nil)
@@ -511,8 +514,8 @@ func TestValidateBackfillPathValidation(t *testing.T) {
 		},
 	}
 
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

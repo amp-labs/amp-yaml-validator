@@ -2,16 +2,19 @@ package validator
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
-	"github.com/amp-labs/amp-yaml-validator/catalog"
 	"github.com/amp-labs/amp-yaml-validator/openapi"
 	"github.com/amp-labs/amp-yaml-validator/types"
 )
 
 // validateSubscribe validates the subscribe action.
-func validateSubscribe(ctx context.Context, valCtx *ValidationContext, integration openapi.Integration, basePath string) {
+func validateSubscribe(
+	ctx context.Context,
+	valCtx *ValidationContext,
+	integration openapi.Integration,
+	basePath string,
+) {
 	if integration.Subscribe == nil {
 		return
 	}
@@ -20,7 +23,7 @@ func validateSubscribe(ctx context.Context, valCtx *ValidationContext, integrati
 	if integration.Read == nil {
 		valCtx.AddErrorWithSuggestion(
 			types.ErrSubscribeRequiresRead,
-			fmt.Sprintf("%s.subscribe", basePath),
+			basePath+".subscribe",
 			types.RuleSubscribeRequiresRead,
 			"Add a read section to this integration",
 		)
@@ -30,7 +33,7 @@ func validateSubscribe(ctx context.Context, valCtx *ValidationContext, integrati
 	if integration.Subscribe.Objects == nil || len(*integration.Subscribe.Objects) == 0 {
 		valCtx.AddErrorWithSuggestion(
 			types.ErrMissingSubscribeObjects,
-			fmt.Sprintf("%s.subscribe.objects", basePath),
+			basePath+".subscribe.objects",
 			types.RuleSubscribeObjects,
 			"Add at least one object to the subscribe.objects list",
 		)
@@ -45,26 +48,36 @@ func validateSubscribe(ctx context.Context, valCtx *ValidationContext, integrati
 }
 
 // validateSubscribeObject validates a single subscribe object.
-func validateSubscribeObject(ctx context.Context, valCtx *ValidationContext, integration openapi.Integration, obj openapi.IntegrationSubscribeObject, basePath string, index int) {
+func validateSubscribeObject(
+	ctx context.Context,
+	valCtx *ValidationContext,
+	integration openapi.Integration,
+	obj openapi.IntegrationSubscribeObject,
+	basePath string,
+	index int,
+) {
 	objectPath := fmt.Sprintf("%s.subscribe.objects[%d]", basePath, index)
 
 	// Check required fields
 	if obj.ObjectName == "" {
 		valCtx.AddErrorWithSuggestion(
 			"Object name is required",
-			fmt.Sprintf("%s.objectName", objectPath),
+			objectPath+".objectName",
 			types.RuleRequiredField,
 			"Add an objectName for this subscribe object",
 		)
 	} else {
 		// Validate object name against provider schema
-		validateObjectNameForSubscribe(ctx, valCtx, integration.Provider, integration.Module, obj.ObjectName, fmt.Sprintf("%s.objectName", objectPath))
+		validateObjectNameForSubscribe(
+			ctx, valCtx, integration.Provider, integration.Module,
+			obj.ObjectName, objectPath+".objectName",
+		)
 	}
 
 	if obj.Destination == "" {
 		valCtx.AddErrorWithSuggestion(
 			"Destination is required",
-			fmt.Sprintf("%s.destination", objectPath),
+			objectPath+".destination",
 			types.RuleRequiredField,
 			"Add a destination for this subscribe object",
 		)
@@ -74,7 +87,7 @@ func validateSubscribeObject(ctx context.Context, valCtx *ValidationContext, int
 	if !obj.InheritFieldsAndMapping {
 		valCtx.AddErrorWithSuggestion(
 			types.ErrSubscribeInheritFieldsAndMapping,
-			fmt.Sprintf("%s.inheritFieldsAndMapping", objectPath),
+			objectPath+".inheritFieldsAndMapping",
 			types.RuleSubscribeInheritFields,
 			"Set inheritFieldsAndMapping to true",
 		)
@@ -82,7 +95,7 @@ func validateSubscribeObject(ctx context.Context, valCtx *ValidationContext, int
 
 	// Validate update event if present
 	if obj.UpdateEvent != nil {
-		validateUpdateEvent(valCtx, obj.UpdateEvent, fmt.Sprintf("%s.updateEvent", objectPath))
+		validateUpdateEvent(valCtx, obj.UpdateEvent, objectPath+".updateEvent")
 	}
 }
 
@@ -92,7 +105,7 @@ func validateUpdateEvent(ctx *ValidationContext, event *openapi.UpdateEvent, pat
 	if event.Enabled != nil && *event.Enabled != openapi.Always {
 		ctx.AddErrorWithSuggestion(
 			types.ErrInvalidInputEnabled,
-			fmt.Sprintf("%s.enabled", path),
+			path+".enabled",
 			types.RuleUpdateEventEnabled,
 			"Set enabled to 'always' or remove the field",
 		)
@@ -101,7 +114,8 @@ func validateUpdateEvent(ctx *ValidationContext, event *openapi.UpdateEvent, pat
 	// Check watch fields configuration
 	hasRequiredWatchFields := event.RequiredWatchFields != nil && len(*event.RequiredWatchFields) > 0
 	hasWatchFieldsAuto := event.WatchFieldsAuto != nil &&
-		(*event.WatchFieldsAuto == openapi.UpdateEventWatchFieldsAutoAll || *event.WatchFieldsAuto == openapi.UpdateEventWatchFieldsAutoSelected)
+		(*event.WatchFieldsAuto == openapi.UpdateEventWatchFieldsAutoAll ||
+			*event.WatchFieldsAuto == openapi.UpdateEventWatchFieldsAutoSelected)
 
 	// Must have either RequiredWatchFields OR WatchFieldsAuto, but not both
 	if !hasRequiredWatchFields && !hasWatchFieldsAuto {
@@ -124,60 +138,13 @@ func validateUpdateEvent(ctx *ValidationContext, event *openapi.UpdateEvent, pat
 }
 
 // validateObjectNameForSubscribe validates that an object name exists in the provider's schema.
-func validateObjectNameForSubscribe(ctx context.Context, valCtx *ValidationContext, provider string, module string, objectName string, path string) {
-	// Skip validation if provider is not set
-	if provider == "" {
-		return
-	}
-
-	// Try to get object list from catalog
-	objects, err := valCtx.CatalogProvider.ListObjects(ctx, provider, module)
-
-	// If catalog doesn't support object enumeration, add a warning
-	if err != nil && errors.Is(err, catalog.ErrNotSupported) {
-		valCtx.AddWarningWithSuggestion(
-			"Object name validation skipped (catalog does not support object enumeration)",
-			path,
-			types.RuleCatalogAccess,
-			"Consider manually verifying that this object is supported by the provider",
-		)
-
-		return
-	}
-
-	// If we got an error other than ErrNotSupported, add a warning
-	if err != nil {
-		valCtx.AddWarningWithSuggestion(
-			fmt.Sprintf("Failed to retrieve object list from catalog: %s", err.Error()),
-			path,
-			types.RuleCatalogAccess,
-			"Consider manually verifying that this object is supported by the provider",
-		)
-
-		return
-	}
-
-	// Check if object is in the list
-	found := false
-
-	for _, obj := range objects {
-		if obj == objectName {
-			found = true
-			break
-		}
-	}
-
-	if !found {
-		providerDesc := provider
-		if module != "" {
-			providerDesc = fmt.Sprintf("%s (module: %s)", provider, module)
-		}
-
-		valCtx.AddErrorWithSuggestion(
-			fmt.Sprintf("Object '%s' is not supported by provider %s", objectName, providerDesc),
-			path,
-			types.RuleObjectExists,
-			fmt.Sprintf("Use one of the supported objects for this provider"),
-		)
-	}
+func validateObjectNameForSubscribe(
+	ctx context.Context,
+	valCtx *ValidationContext,
+	provider string,
+	module string,
+	objectName string,
+	path string,
+) {
+	validateObjectNameCommon(ctx, valCtx, provider, module, objectName, path)
 }

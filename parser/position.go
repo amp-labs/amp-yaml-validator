@@ -30,6 +30,7 @@ func (pm PositionMap) Set(path string, pos Position) {
 // Get retrieves the position for the given path.
 func (pm PositionMap) Get(path string) (Position, bool) {
 	pos, ok := pm[path]
+
 	return pos, ok
 }
 
@@ -70,13 +71,14 @@ func (pm PositionMap) GetOrDefault(path string) Position {
 		// Determine where to cut the path
 		var cutPos int
 
-		if lastDot == -1 && lastBracket == -1 {
-			// No more parents to try
-			break
-		} else if lastDot > lastBracket {
+		switch {
+		case lastDot == -1 && lastBracket == -1:
+			// No more parents to try - return zero position
+			return Position{Line: 0, Column: 0}
+		case lastDot > lastBracket:
 			// Last segment is after a dot (e.g., ".schedule")
 			cutPos = lastDot
-		} else {
+		default:
 			// Last segment is an array index (e.g., "[0]")
 			cutPos = lastBracket
 		}
@@ -87,6 +89,4 @@ func (pm PositionMap) GetOrDefault(path string) Position {
 			return pos
 		}
 	}
-
-	return Position{Line: 0, Column: 0}
 }

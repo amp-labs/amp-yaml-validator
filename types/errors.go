@@ -1,6 +1,6 @@
 package types
 
-// Error constants matching server/shared/common/validate.go
+// Error constants matching server/shared/common/validate.go.
 const (
 	ErrMissingReadObjects                = "read must contain an 'objects' list"
 	ErrMissingWriteObjects               = "write must contain an 'objects' list"
@@ -11,12 +11,12 @@ const (
 	ErrInvalidBackfill                   = "invalid backfill"
 	ErrSubscribeRequiresRead             = "subscribe requires read to be defined at the same time"
 	ErrSubscribeInheritFieldsAndMapping  = "subscribe must have inheritFieldsAndMapping set to true"
-	ErrWatchFieldsRequired               = "requiredWatchFields should have minimum 1 field or watchFieldsAuto should be set"
+	ErrWatchFieldsRequired               = "requiredWatchFields needs min 1 field or watchFieldsAuto set"
 	ErrInvalidInputEnabled               = "invalid input enabled value"
 	ErrWatchFieldsAndRequiredWatchFields = "watchFieldsAuto and requiredWatchFields cannot be used together"
 )
 
-// Rule identifiers for ValidationIssue.Rule field
+// Rule identifiers for ValidationIssue.Rule field.
 const (
 	RuleSpecVersion                 = "spec-version"
 	RuleIntegrationStructure        = "integration-structure"
@@ -45,7 +45,7 @@ const (
 	RuleObjectExists                = "object-exists"
 )
 
-// Constants for validation rules
+// Constants for validation rules.
 const (
 	CurrentSpecVersion            = "1.0.0" // The only supported spec version
 	MinScheduleIntervalMinutes    = 10      // Minimum schedule frequency in minutes

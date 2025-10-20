@@ -117,8 +117,8 @@ func TestValidateDeliveryMode(t *testing.T) {
 		},
 	}
 
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -138,6 +138,7 @@ func TestValidateDeliveryMode(t *testing.T) {
 
 			// Check errors
 			errors := ctx.GetErrors()
+			//nolint:nestif // Test assertion complexity is acceptable
 			if tt.wantError {
 				if len(errors) == 0 {
 					t.Error("expected error but got none")
@@ -215,8 +216,8 @@ func TestValidateDeliveryModeLineNumbers(t *testing.T) {
 		},
 	}
 
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -300,8 +301,8 @@ func TestValidateDeliveryModePageSizeBoundaries(t *testing.T) {
 		},
 	}
 
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -463,9 +464,10 @@ func TestValidateDeliveryModeSuggestions(t *testing.T) {
 			suggestionContains: "between",
 		},
 	}
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

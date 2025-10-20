@@ -8,6 +8,8 @@ import (
 	"github.com/amp-labs/amp-yaml-validator/types"
 )
 
+const testIntegrationPath = "$.integrations[0]"
+
 func TestValidateSubscribe(t *testing.T) {
 	t.Parallel()
 
@@ -273,14 +275,14 @@ func TestValidateSubscribe(t *testing.T) {
 		},
 	}
 
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			// Create validation context
 			posMap := parser.NewPositionMap()
-			path := "$.integrations[0]"
+			path := testIntegrationPath
 
 			// Set up positions
 			posMap.Set(path+".subscribe", parser.NewPosition(10, 3))
@@ -296,6 +298,7 @@ func TestValidateSubscribe(t *testing.T) {
 
 			// Check errors
 			errors := ctx.GetErrors()
+			//nolint:nestif // Test assertion complexity is acceptable
 			if tt.wantErrors > 0 {
 				if len(errors) == 0 {
 					t.Error("expected error but got none")
@@ -391,7 +394,11 @@ func TestValidateSubscribeLineNumbers(t *testing.T) {
 							Destination:             "webhook",
 							InheritFieldsAndMapping: true,
 							UpdateEvent: &openapi.UpdateEvent{
-								Enabled: func() *openapi.UpdateEventEnabled { e := openapi.Always; return &e }(),
+								Enabled: func() *openapi.UpdateEventEnabled {
+									e := openapi.Always
+
+									return &e
+								}(),
 							},
 						},
 					},
@@ -406,8 +413,8 @@ func TestValidateSubscribeLineNumbers(t *testing.T) {
 		},
 	}
 
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -459,8 +466,16 @@ func TestValidateSubscribeMultipleObjects(t *testing.T) {
 			Destination:             "webhook",
 			InheritFieldsAndMapping: true,
 			UpdateEvent: &openapi.UpdateEvent{
-				Enabled:         func() *openapi.UpdateEventEnabled { e := openapi.Always; return &e }(),
-				WatchFieldsAuto: func() *openapi.UpdateEventWatchFieldsAuto { w := openapi.UpdateEventWatchFieldsAutoAll; return &w }(),
+				Enabled: func() *openapi.UpdateEventEnabled {
+					e := openapi.Always
+
+					return &e
+				}(),
+				WatchFieldsAuto: func() *openapi.UpdateEventWatchFieldsAuto {
+					w := openapi.UpdateEventWatchFieldsAutoAll
+
+					return &w
+				}(),
 			}, // valid
 		},
 		{
@@ -468,7 +483,11 @@ func TestValidateSubscribeMultipleObjects(t *testing.T) {
 			Destination:             "webhook",
 			InheritFieldsAndMapping: true,
 			UpdateEvent: &openapi.UpdateEvent{
-				Enabled: func() *openapi.UpdateEventEnabled { e := openapi.Always; return &e }(),
+				Enabled: func() *openapi.UpdateEventEnabled {
+					e := openapi.Always
+
+					return &e
+				}(),
 				// missing watch fields configuration - invalid
 			},
 		},
@@ -487,12 +506,15 @@ func TestValidateSubscribeMultipleObjects(t *testing.T) {
 	}
 
 	posMap := parser.NewPositionMap()
-	path := "$.integrations[0]"
+	path := testIntegrationPath
 
 	// Set positions for each object
 	for i := range objects {
 		posMap.Set(path+".subscribe.objects["+string(rune('0'+i))+"]", parser.NewPosition(10+i*10, 5))
-		posMap.Set(path+".subscribe.objects["+string(rune('0'+i))+"].inheritFieldsAndMapping", parser.NewPosition(10+i*10+1, 7))
+		posMap.Set(
+			path+".subscribe.objects["+string(rune('0'+i))+"].inheritFieldsAndMapping", parser.NewPosition(10+i*10+1,
+				7),
+		)
 		posMap.Set(path+".subscribe.objects["+string(rune('0'+i))+"].updateEvent", parser.NewPosition(10+i*10+2, 7))
 	}
 
@@ -607,8 +629,8 @@ func TestValidateUpdateEvent(t *testing.T) {
 		},
 	}
 
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -625,6 +647,7 @@ func TestValidateUpdateEvent(t *testing.T) {
 
 			// Check errors
 			errors := ctx.GetErrors()
+			//nolint:nestif // Test assertion complexity is acceptable
 			if tt.wantError {
 				if len(errors) == 0 {
 					t.Error("expected error but got none")
@@ -697,14 +720,14 @@ func TestValidateSubscribeRequiredFields(t *testing.T) {
 		},
 	}
 
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			// Create validation context
 			posMap := parser.NewPositionMap()
-			path := "$.integrations[0]"
+			path := testIntegrationPath
 			posMap.Set(path+".subscribe.objects[0]", parser.NewPosition(10, 5))
 			posMap.Set(path+".subscribe.objects[0].objectName", parser.NewPosition(11, 7))
 			posMap.Set(path+".subscribe.objects[0].destination", parser.NewPosition(12, 7))
@@ -733,10 +756,8 @@ func TestValidateSubscribeRequiredFields(t *testing.T) {
 						t.Errorf("expected rule %s, got %s", tt.expectedRule, err.Rule)
 					}
 				}
-			} else {
-				if len(errors) > 0 {
-					t.Errorf("expected no errors, got %d: %v", len(errors), errors)
-				}
+			} else if len(errors) > 0 {
+				t.Errorf("expected no errors, got %d: %v", len(errors), errors)
 			}
 		})
 	}

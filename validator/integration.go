@@ -57,7 +57,7 @@ func validateIntegration(ctx *ValidationContext, integration openapi.Integration
 	if integration.Name == "" {
 		ctx.AddErrorWithSuggestion(
 			"Integration name is required",
-			fmt.Sprintf("%s.name", basePath),
+			basePath+".name",
 			types.RuleRequiredField,
 			"Add a name for this integration",
 		)
@@ -66,7 +66,7 @@ func validateIntegration(ctx *ValidationContext, integration openapi.Integration
 	if integration.Provider == "" {
 		ctx.AddErrorWithSuggestion(
 			"Integration provider is required",
-			fmt.Sprintf("%s.provider", basePath),
+			basePath+".provider",
 			types.RuleRequiredField,
 			"Add a provider for this integration (e.g., 'salesforce', 'hubspot')",
 		)

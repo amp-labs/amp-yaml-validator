@@ -6,10 +6,13 @@ import (
 	"path/filepath"
 	"strings"
 
+	validator "github.com/amp-labs/amp-yaml-validator"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+)
 
-	validator "github.com/amp-labs/amp-yaml-validator"
+const (
+	separatorLength = 60 // Length of separator lines in output
 )
 
 var (
@@ -107,17 +110,18 @@ func runValidation(cmd *cobra.Command, args []string) {
 func printResults(filePath string, result *validator.ValidationResult) {
 	fileName := filepath.Base(filePath)
 
-	fmt.Printf("Validating: %s\n", fileName)
-	fmt.Println(strings.Repeat("=", 60))
+	fmt.Printf("Validating: %s\n", fileName)          //nolint:forbidigo // CLI output to user
+	fmt.Println(strings.Repeat("=", separatorLength)) //nolint:forbidigo // CLI output to user
 
 	if result.Valid && len(result.Warnings) == 0 {
-		fmt.Println("✓ Validation passed with no issues!")
+		fmt.Println("✓ Validation passed with no issues!") //nolint:forbidigo // CLI output to user
+
 		return
 	}
 
 	// Print errors
 	if len(result.Errors) > 0 {
-		fmt.Printf("\n%s Errors (%d):\n", getSymbol("error"), len(result.Errors))
+		fmt.Printf("\n%s Errors (%d):\n", getSymbol("error"), len(result.Errors)) //nolint:forbidigo // CLI output
 
 		for i, issue := range result.Errors {
 			printIssue(i+1, issue)
@@ -126,7 +130,7 @@ func printResults(filePath string, result *validator.ValidationResult) {
 
 	// Print warnings
 	if len(result.Warnings) > 0 {
-		fmt.Printf("\n%s Warnings (%d):\n", getSymbol("warning"), len(result.Warnings))
+		fmt.Printf("\n%s Warnings (%d):\n", getSymbol("warning"), len(result.Warnings)) //nolint:forbidigo // CLI output
 
 		for i, issue := range result.Warnings {
 			printIssue(i+1, issue)
@@ -134,34 +138,35 @@ func printResults(filePath string, result *validator.ValidationResult) {
 	}
 
 	// Print summary
-	fmt.Println()
-	fmt.Println(strings.Repeat("=", 60))
+	fmt.Println()                                     //nolint:forbidigo // CLI output to user
+	fmt.Println(strings.Repeat("=", separatorLength)) //nolint:forbidigo // CLI output to user
 
 	if result.Valid {
-		fmt.Printf("✓ Validation passed with %d warning(s)\n", len(result.Warnings))
+		fmt.Printf("✓ Validation passed with %d warning(s)\n", len(result.Warnings)) //nolint:forbidigo // CLI output
 	} else {
+		//nolint:forbidigo // CLI output to user
 		fmt.Printf("✗ Validation failed with %d error(s) and %d warning(s)\n",
 			len(result.Errors), len(result.Warnings))
 	}
 }
 
 func printIssue(num int, issue validator.ValidationIssue) {
-	fmt.Printf("\n  %d. [%s] %s\n", num, issue.Rule, issue.Message)
+	fmt.Printf("\n  %d. [%s] %s\n", num, issue.Rule, issue.Message) //nolint:forbidigo // CLI output to user
 
 	if issue.Path != "" {
-		fmt.Printf("     Path: %s\n", issue.Path)
+		fmt.Printf("     Path: %s\n", issue.Path) //nolint:forbidigo // CLI output to user
 	}
 
 	if issue.Line > 0 {
 		if issue.Column > 0 {
-			fmt.Printf("     Location: line %d, column %d\n", issue.Line, issue.Column)
+			fmt.Printf("     Location: line %d, column %d\n", issue.Line, issue.Column) //nolint:forbidigo // CLI output
 		} else {
-			fmt.Printf("     Location: line %d\n", issue.Line)
+			fmt.Printf("     Location: line %d\n", issue.Line) //nolint:forbidigo // CLI output to user
 		}
 	}
 
 	if issue.Suggestion != "" {
-		fmt.Printf("     Suggestion: %s\n", issue.Suggestion)
+		fmt.Printf("     Suggestion: %s\n", issue.Suggestion) //nolint:forbidigo // CLI output to user
 	}
 }
 

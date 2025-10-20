@@ -167,6 +167,7 @@ func TestValidateInvalidFiles(t *testing.T) {
 			}
 
 			// Check for expected error if configured
+			//nolint:nestif // Test assertion complexity is acceptable
 			if expectedErr, ok := expectedErrors[fileName]; ok {
 				foundExpectedError := false
 
@@ -225,6 +226,7 @@ func TestValidateSampleFiles(t *testing.T) {
 	// Check if samples directory exists
 	if _, err := os.Stat(samplesDir); os.IsNotExist(err) {
 		t.Skip("Samples directory does not exist, skipping sample file tests")
+
 		return
 	}
 
@@ -248,6 +250,7 @@ func TestValidateSampleFiles(t *testing.T) {
 
 	if len(sampleFiles) == 0 {
 		t.Skip("No sample files found in samples directory")
+
 		return
 	}
 
@@ -441,8 +444,8 @@ integrations:
 		},
 	}
 
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -472,6 +475,7 @@ integrations:
 				for _, validationErr := range result.Errors {
 					if validationErr.Rule == tt.wantRule {
 						foundRule = true
+
 						break
 					}
 				}
@@ -488,7 +492,7 @@ integrations:
 	}
 }
 
-// createMockCatalog creates a mock catalog provider with common test providers
+// createMockCatalog creates a mock catalog provider with common test providers.
 func createMockCatalog() catalog.CatalogProvider {
 	return catalog.NewMockCatalogProvider(map[string]providers.ProviderInfo{
 		"salesforce": {

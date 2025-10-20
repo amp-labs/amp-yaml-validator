@@ -23,7 +23,12 @@ func validateProviderSpecific(ctx context.Context, valCtx *ValidationContext) {
 }
 
 // validateProviderForIntegration validates provider-specific rules for a single integration.
-func validateProviderForIntegration(ctx context.Context, valCtx *ValidationContext, integration openapi.Integration, basePath string) {
+func validateProviderForIntegration(
+	ctx context.Context,
+	valCtx *ValidationContext,
+	integration openapi.Integration,
+	basePath string,
+) {
 	// Skip if catalog not accessible
 	if !valCtx.HasCatalogAccess(ctx) {
 		return
@@ -42,7 +47,12 @@ func validateProviderForIntegration(ctx context.Context, valCtx *ValidationConte
 }
 
 // validateProviderCapabilities validates that the provider supports the requested actions.
-func validateProviderCapabilities(ctx context.Context, valCtx *ValidationContext, integration openapi.Integration, basePath string) {
+func validateProviderCapabilities(
+	ctx context.Context,
+	valCtx *ValidationContext,
+	integration openapi.Integration,
+	basePath string,
+) {
 	providerInfo, err := valCtx.GetProviderInfo(ctx, integration.Provider)
 	if err != nil {
 		if strings.Contains(err.Error(), "failed to load catalog") {
@@ -111,7 +121,7 @@ func validateProviderCapabilities(ctx context.Context, valCtx *ValidationContext
 	// REMOVED: Bulk write check until manifest signals bulk usage
 	// If manifest has an explicit bulk flag in the future, check that flag against
 	// the relevant support.BulkWrite.Insert/Update/Upsert/Delete fields
-}
+} //nolint:wsl // Commented code block
 
 // validateSalesforceRules validates Salesforce-specific constraints.
 func validateSalesforceRules(ctx *ValidationContext, integration openapi.Integration, basePath string) {
@@ -135,7 +145,12 @@ func validateSalesforceRules(ctx *ValidationContext, integration openapi.Integra
 }
 
 // validateModuleSupport validates that the specified module exists and supports the requested actions.
-func validateModuleSupport(ctx context.Context, valCtx *ValidationContext, integration openapi.Integration, basePath string) {
+func validateModuleSupport(
+	ctx context.Context,
+	valCtx *ValidationContext,
+	integration openapi.Integration,
+	basePath string,
+) {
 	if integration.Module == "" {
 		return
 	}
@@ -167,7 +182,10 @@ func validateModuleSupport(ctx context.Context, valCtx *ValidationContext, integ
 	// Check write capability for module
 	if integration.Write != nil && !support.Write {
 		valCtx.AddError(
-			fmt.Sprintf("Module '%s' for provider '%s' does not support write actions", integration.Module, integration.Provider),
+			fmt.Sprintf(
+				"Module '%s' for provider '%s' does not support write actions",
+				integration.Module, integration.Provider,
+			),
 			basePath+".write",
 			types.RuleProviderCapabilityWrite,
 		)
@@ -176,7 +194,10 @@ func validateModuleSupport(ctx context.Context, valCtx *ValidationContext, integ
 	// Check subscribe capability for module
 	if integration.Subscribe != nil && !support.Subscribe {
 		valCtx.AddError(
-			fmt.Sprintf("Module '%s' for provider '%s' does not support subscribe actions", integration.Module, integration.Provider),
+			fmt.Sprintf(
+				"Module '%s' for provider '%s' does not support subscribe actions",
+				integration.Module, integration.Provider,
+			),
 			basePath+".subscribe",
 			types.RuleProviderCapabilitySubscribe,
 		)

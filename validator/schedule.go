@@ -10,6 +10,11 @@ import (
 	"github.com/amp-labs/amp-yaml-validator/types"
 )
 
+const (
+	cronFieldCount            = 5 // Standard cron format has 5 fields
+	intervalPartsExpectedSize = 2 // Interval syntax like */10 has 2 parts
+)
+
 // validateSchedule validates cron schedule syntax and frequency.
 func validateSchedule(ctx *ValidationContext, schedule string, path string) {
 	gron := gronx.New()
@@ -28,7 +33,7 @@ func validateSchedule(ctx *ValidationContext, schedule string, path string) {
 
 	// Split schedule into parts (should be 5 parts for standard cron)
 	parts := strings.Fields(schedule)
-	if len(parts) != 5 {
+	if len(parts) != cronFieldCount {
 		ctx.AddErrorWithSuggestion(
 			types.ErrInvalidSchedule,
 			path,
@@ -55,9 +60,10 @@ func validateSchedule(ctx *ValidationContext, schedule string, path string) {
 	}
 
 	// If minute field contains "/" (e.g., "*/15"), check the interval
+	//nolint:nestif // Nested validation for interval parsing is justified
 	if strings.Contains(minuteField, "/") {
 		intervalParts := strings.Split(minuteField, "/")
-		if len(intervalParts) == 2 {
+		if len(intervalParts) == intervalPartsExpectedSize {
 			if intervalVal, err := strconv.Atoi(intervalParts[1]); err == nil {
 				if intervalVal < types.MinScheduleIntervalMinutes {
 					ctx.AddErrorWithSuggestion(

@@ -35,7 +35,7 @@ func validateBackfill(ctx *ValidationContext, backfill *openapi.Backfill, path s
 	if hasDays && hasFullHistory {
 		ctx.AddErrorWithSuggestion(
 			"You must provide only one of 'days' or 'fullHistory'",
-			fmt.Sprintf("%s.defaultPeriod", path),
+			path+".defaultPeriod",
 			types.RuleBackfillConfig,
 			"Remove either 'days' or 'fullHistory' from the backfill configuration",
 		)
@@ -44,7 +44,7 @@ func validateBackfill(ctx *ValidationContext, backfill *openapi.Backfill, path s
 	if !hasDays && !hasFullHistory {
 		ctx.AddErrorWithSuggestion(
 			"You must provide either 'days' or 'fullHistory'",
-			fmt.Sprintf("%s.defaultPeriod", path),
+			path+".defaultPeriod",
 			types.RuleBackfillConfig,
 			"Add either 'days' (e.g., 30) or 'fullHistory' (true) to the backfill configuration",
 		)

@@ -110,8 +110,8 @@ func TestValidateAlwaysEnabledObject(t *testing.T) {
 		},
 	}
 
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -213,8 +213,8 @@ func TestValidateAlwaysEnabledObjectLineNumbers(t *testing.T) {
 		},
 	}
 
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -329,7 +329,6 @@ func TestValidateAlwaysEnabledObjectPathValidation(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -350,7 +349,7 @@ func TestValidateAlwaysEnabledObjectPathValidation(t *testing.T) {
 	}
 }
 
-// Helper function to create a field without mapToName
+// Helper function to create a field without mapToName.
 func mustCreateField(fieldName string) openapi.IntegrationField {
 	field := openapi.IntegrationFieldExistent{
 		FieldName: fieldName,
@@ -364,7 +363,7 @@ func mustCreateField(fieldName string) openapi.IntegrationField {
 	return result
 }
 
-// Helper function to create a field with mapToName
+// Helper function to create a field with mapToName.
 func mustCreateFieldWithMapToName(fieldName, mapToName string) openapi.IntegrationField {
 	field := openapi.IntegrationFieldExistent{
 		FieldName: fieldName,

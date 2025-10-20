@@ -32,6 +32,7 @@ func NewValidator(opts ...Option) *Validator {
 // This is a convenience function that creates a validator and validates the file.
 func ValidateFile(ctx context.Context, yamlPath string, opts ...Option) (*ValidationResult, error) {
 	v := NewValidator(opts...)
+
 	return v.ValidateFile(ctx, yamlPath)
 }
 
@@ -39,6 +40,7 @@ func ValidateFile(ctx context.Context, yamlPath string, opts ...Option) (*Valida
 // This is a convenience function that creates a validator and validates the bytes.
 func ValidateBytes(ctx context.Context, yamlBytes []byte, opts ...Option) (*ValidationResult, error) {
 	v := NewValidator(opts...)
+
 	return v.ValidateBytes(ctx, yamlBytes)
 }
 
@@ -46,6 +48,7 @@ func ValidateBytes(ctx context.Context, yamlBytes []byte, opts ...Option) (*Vali
 // This is a convenience function that creates a validator and validates the manifest.
 func ValidateManifest(ctx context.Context, manifest *openapi.Manifest, opts ...Option) (*ValidationResult, error) {
 	v := NewValidator(opts...)
+
 	return v.ValidateManifest(ctx, manifest)
 }
 

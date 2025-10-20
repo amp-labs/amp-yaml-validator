@@ -13,7 +13,7 @@ func validateAlwaysEnabledObject(ctx *ValidationContext, obj openapi.Integration
 	if obj.RequiredFields == nil || len(*obj.RequiredFields) == 0 {
 		ctx.AddErrorWithSuggestion(
 			"Required fields are required for always enabled objects",
-			fmt.Sprintf("%s.requiredFields", path),
+			path+".requiredFields",
 			types.RuleAlwaysEnabledFields,
 			"Add at least one required field for this always-enabled object",
 		)
@@ -37,7 +37,7 @@ func validateAlwaysEnabledObject(ctx *ValidationContext, obj openapi.Integration
 	if obj.Schedule == "" {
 		ctx.AddErrorWithSuggestion(
 			"Schedule is required for always enabled objects",
-			fmt.Sprintf("%s.schedule", path),
+			path+".schedule",
 			types.RuleAlwaysEnabledFields,
 			"Add a schedule for this always-enabled object",
 		)

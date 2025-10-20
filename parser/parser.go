@@ -8,10 +8,7 @@ import (
 	sigsyaml "sigs.k8s.io/yaml"
 )
 
-// ParseYAML parses YAML bytes into a Manifest and builds a position map and directive map.
-// It uses a two-pass approach:
-// 1. First pass: Unmarshal into yaml.v3.Node and walk the tree to build position map and extract directives
-// 2. Second pass: Unmarshal into openapi.Manifest using sigs.k8s.io/yaml (handles JSON tags, same as server)
+// 2. Second pass: Unmarshal into openapi.Manifest using sigs.k8s.io/yaml (handles JSON tags, same as server).
 func ParseYAML(yamlBytes []byte) (*openapi.Manifest, PositionMap, DirectiveMap, error) {
 	// First pass: Build position map and extract directives from yaml.Node
 	var node yaml.Node

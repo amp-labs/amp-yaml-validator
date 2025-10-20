@@ -26,7 +26,7 @@ func validateDeliveryMode(ctx *ValidationContext, delivery *openapi.Delivery, pa
 		if delivery.PageSize != nil {
 			ctx.AddErrorWithSuggestion(
 				"Page size is not valid when delivery mode is auto",
-				fmt.Sprintf("%s.pageSize", path),
+				path+".pageSize",
 				types.RuleDeliveryMode,
 				"Remove pageSize or change delivery mode to 'onRequest'",
 			)
@@ -37,27 +37,25 @@ func validateDeliveryMode(ctx *ValidationContext, delivery *openapi.Delivery, pa
 		if delivery.PageSize == nil {
 			ctx.AddErrorWithSuggestion(
 				"Page size is required for on-request delivery mode",
-				fmt.Sprintf("%s.pageSize", path),
+				path+".pageSize",
 				types.RuleDeliveryMode,
 				fmt.Sprintf("Add pageSize between %d and %d", types.MinOnRequestPageSize, types.MaxOnRequestPageSize),
 			)
-		} else {
+		} else if *delivery.PageSize < types.MinOnRequestPageSize || *delivery.PageSize > types.MaxOnRequestPageSize {
 			// Check page size is within range
-			if *delivery.PageSize < types.MinOnRequestPageSize || *delivery.PageSize > types.MaxOnRequestPageSize {
-				ctx.AddErrorWithSuggestion(
-					fmt.Sprintf("Page size must be between %d and %d. Found: %d",
-						types.MinOnRequestPageSize, types.MaxOnRequestPageSize, *delivery.PageSize),
-					fmt.Sprintf("%s.pageSize", path),
-					types.RuleDeliveryMode,
-					fmt.Sprintf("Set pageSize to a value between %d and %d", types.MinOnRequestPageSize, types.MaxOnRequestPageSize),
-				)
-			}
+			ctx.AddErrorWithSuggestion(
+				fmt.Sprintf("Page size must be between %d and %d. Found: %d",
+					types.MinOnRequestPageSize, types.MaxOnRequestPageSize, *delivery.PageSize),
+				path+".pageSize",
+				types.RuleDeliveryMode,
+				fmt.Sprintf("Set pageSize to a value between %d and %d", types.MinOnRequestPageSize, types.MaxOnRequestPageSize),
+			)
 		}
 
 	default:
 		ctx.AddErrorWithSuggestion(
 			"Invalid delivery mode",
-			fmt.Sprintf("%s.mode", path),
+			path+".mode",
 			types.RuleDeliveryMode,
 			"Use 'auto' or 'onRequest' as the delivery mode",
 		)

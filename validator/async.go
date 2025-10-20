@@ -28,6 +28,7 @@ func validateDestinationReferences(ctx context.Context, valCtx *ValidationContex
 	// Track unique destinations to avoid duplicate warnings
 	destinations := make(map[string]string) // destination name -> first path that references it
 
+	//nolint:varnamelen // i is idiomatic for index in loops
 	for i, integration := range manifest.Integrations {
 		// Check read destinations
 		if integration.Read != nil && integration.Read.Objects != nil {
@@ -68,7 +69,6 @@ func validateDestinationReferences(ctx context.Context, valCtx *ValidationContex
 					fmt.Sprintf("Create destination %q in your project or check access permissions", destName),
 				)
 			}
-			// If no error, destination exists - no warning needed
 		} else {
 			// No checker provided, issue a warning reminder
 			valCtx.AddWarningWithSuggestion(
@@ -87,6 +87,7 @@ func validateDestinationReferences(ctx context.Context, valCtx *ValidationContex
 func validateObjectExistence(ctx context.Context, valCtx *ValidationContext) {
 	manifest := valCtx.Manifest
 
+	//nolint:varnamelen // i is idiomatic for index in loops
 	for i, integration := range manifest.Integrations {
 		providerInfo, err := valCtx.GetProviderInfo(ctx, integration.Provider)
 		if err != nil {
@@ -164,8 +165,11 @@ func validateBackfillRisks(ctx *ValidationContext) {
 
 	const largeBackfillThreshold = 180 // days
 
+	//nolint:varnamelen // i is idiomatic for index in loops
 	for i, integration := range manifest.Integrations {
+		//nolint:nestif // Nested validation logic for hierarchical config is justified
 		if integration.Read != nil && integration.Read.Objects != nil {
+			//nolint:varnamelen // j is idiomatic for nested loop index
 			for j, obj := range *integration.Read.Objects {
 				if obj.Backfill != nil {
 					period := &obj.Backfill.DefaultPeriod
@@ -222,6 +226,7 @@ func validateScheduleFrequencyRisks(ctx *ValidationContext) {
 
 	const frequentScheduleThreshold = 5 // minutes
 
+	//nolint:varnamelen // i is idiomatic for index in loops
 	for i, integration := range manifest.Integrations {
 		if integration.Read != nil && integration.Read.Objects != nil {
 			for j, obj := range *integration.Read.Objects {

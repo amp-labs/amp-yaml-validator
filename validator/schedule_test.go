@@ -139,8 +139,8 @@ func TestValidateSchedule(t *testing.T) {
 		},
 	}
 
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -156,6 +156,7 @@ func TestValidateSchedule(t *testing.T) {
 
 			// Check errors
 			errors := ctx.GetErrors()
+			//nolint:nestif // Test assertion complexity is acceptable
 			if tt.wantError {
 				if len(errors) == 0 {
 					t.Error("expected error but got none")
@@ -210,8 +211,8 @@ func TestValidateScheduleLineNumbers(t *testing.T) {
 		},
 	}
 
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -341,8 +342,8 @@ func TestValidateScheduleRuleTypes(t *testing.T) {
 		},
 	}
 
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -424,8 +425,8 @@ func TestValidateScheduleEdgeCases(t *testing.T) {
 		},
 	}
 
+	//nolint:varnamelen // tt is idiomatic in table-driven tests
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

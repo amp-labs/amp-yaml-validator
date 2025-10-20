@@ -7,7 +7,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// TestDirectiveLimitations documents known limitations and edge cases
+// TestDirectiveLimitations documents known limitations and edge cases.
 func TestDirectiveLimitations(t *testing.T) {
 	t.Parallel()
 
@@ -21,6 +21,7 @@ objects:
     objectName: account
     destination: webhook
 `
+
 		var node yaml.Node
 		err := yaml.Unmarshal([]byte(yamlStr), &node)
 		require.NoError(t, err)
@@ -40,7 +41,9 @@ objects:
   - objectName: account
     destination: webhook
 `
-		yaml.Unmarshal([]byte(yamlWorkaround), &node)
+		err = yaml.Unmarshal([]byte(yamlWorkaround), &node)
+		require.NoError(t, err)
+
 		dirMapWorkaround := extractDirectives(&node)
 
 		require.True(t, dirMapWorkaround.ShouldIgnore("$.objects[0].objectName", "catalog-access"))
@@ -57,6 +60,7 @@ objects:
 # with multiple lines
 field: value
 `
+
 		var node yaml.Node
 		err := yaml.Unmarshal([]byte(yamlStr), &node)
 		require.NoError(t, err)
@@ -76,6 +80,7 @@ root:
     level2:
       level3: value
 `
+
 		var node yaml.Node
 		err := yaml.Unmarshal([]byte(yamlStr), &node)
 		require.NoError(t, err)
@@ -97,6 +102,7 @@ root:
 # amp:ignore[rule2]
 field: value
 `
+
 		var node yaml.Node
 		err := yaml.Unmarshal([]byte(yamlStr), &node)
 		require.NoError(t, err)
@@ -119,6 +125,7 @@ field: value
 		yamlStr := `
 objects: []  # amp:ignore[test-rule]
 `
+
 		var node yaml.Node
 		err := yaml.Unmarshal([]byte(yamlStr), &node)
 		require.NoError(t, err)
@@ -134,6 +141,7 @@ objects: []  # amp:ignore[test-rule]
 		yamlStr := `
 field: value  # amp:ignore[rule-with-dashes,rule_with_underscores]
 `
+
 		var node yaml.Node
 		err := yaml.Unmarshal([]byte(yamlStr), &node)
 		require.NoError(t, err)
