@@ -24,7 +24,7 @@ integrations:
           schedule: "*/10 * * * *"
 `
 		validator := NewValidator()
-		result, err := validator.ValidateBytes([]byte(yaml))
+		result, err := validator.ValidateBytes(t.Context(), []byte(yaml))
 		require.NoError(t, err)
 
 		// Should have no destination-exists warning
@@ -50,7 +50,7 @@ integrations:
           schedule: "*/5 * * * *"
 `
 		validator := NewValidator()
-		result, err := validator.ValidateBytes([]byte(yaml))
+		result, err := validator.ValidateBytes(t.Context(), []byte(yaml))
 		require.NoError(t, err)
 
 		// Should have no frequent-schedule-risk warning
@@ -76,7 +76,7 @@ integrations:
           schedule: "*/5 * * * *"
 `
 		validator := NewValidator()
-		result, err := validator.ValidateBytes([]byte(yaml))
+		result, err := validator.ValidateBytes(t.Context(), []byte(yaml))
 		require.NoError(t, err)
 
 		// Should have no warnings about this object
@@ -102,7 +102,7 @@ integrations:
           schedule: "*/5 * * * *"
 `
 		validator := NewValidator()
-		result, err := validator.ValidateBytes([]byte(yaml))
+		result, err := validator.ValidateBytes(t.Context(), []byte(yaml))
 		require.NoError(t, err)
 
 		// Should have neither destination-exists nor frequent-schedule-risk warnings
@@ -128,17 +128,19 @@ integrations:
           schedule: "*/5 * * * *"  # amp:ignore
 `
 		validator := NewValidator()
-		result, err := validator.ValidateBytes([]byte(yaml))
+		result, err := validator.ValidateBytes(t.Context(), []byte(yaml))
 		require.NoError(t, err)
 
 		// Should still have the schedule error (errors can't be suppressed)
 		hasScheduleError := false
+
 		for _, error := range result.Errors {
 			if error.Rule == "schedule-minimum-interval" {
 				hasScheduleError = true
 				break
 			}
 		}
+
 		require.True(t, hasScheduleError, "errors should not be suppressible")
 	})
 
@@ -161,7 +163,7 @@ integrations:
           schedule: "*/10 * * * *"
 `
 		validator := NewValidator()
-		result, err := validator.ValidateBytes([]byte(yaml))
+		result, err := validator.ValidateBytes(t.Context(), []byte(yaml))
 		require.NoError(t, err)
 
 		// Should have no destination-exists warnings for any object under read
@@ -189,7 +191,7 @@ integrations:
           schedule: "*/10 * * * *"
 `
 		validator := NewValidator()
-		result, err := validator.ValidateBytes([]byte(yaml))
+		result, err := validator.ValidateBytes(t.Context(), []byte(yaml))
 		require.NoError(t, err)
 
 		// Should have no catalog-access warnings for any object under objects
@@ -214,7 +216,7 @@ integrations:
           schedule: "*/10 * * * *"
 `
 		validator := NewValidator()
-		result, err := validator.ValidateBytes([]byte(yaml))
+		result, err := validator.ValidateBytes(t.Context(), []byte(yaml))
 		require.NoError(t, err)
 
 		// Should have no warnings under read section

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -13,10 +14,9 @@ type DatabaseProviderAppChecker struct {
 	// In a real implementation, this would have a database connection or API client
 }
 
-func (c *DatabaseProviderAppChecker) CheckProviderApp(providerName string) error {
+func (c *DatabaseProviderAppChecker) CheckProviderApp(ctx context.Context, providerName string) error {
 	// In a real implementation, this would query the database or API
 	// to check if the provider has valid credentials configured
-
 	// For this example, we'll just simulate checking
 	configuredProviders := map[string]bool{
 		"salesforce": true,
@@ -27,6 +27,7 @@ func (c *DatabaseProviderAppChecker) CheckProviderApp(providerName string) error
 	if !configuredProviders[providerName] {
 		return checker.ErrProviderAppNotFound
 	}
+
 	return nil
 }
 
@@ -35,7 +36,7 @@ type CustomRateLimitChecker struct {
 	// In a real implementation, this might query account tier information
 }
 
-func (c *CustomRateLimitChecker) GetRateLimitInfo(providerName string) (*checker.RateLimitInfo, error) {
+func (c *CustomRateLimitChecker) GetRateLimitInfo(ctx context.Context, providerName string) (*checker.RateLimitInfo, error) {
 	// Provide provider-specific rate limit recommendations
 	limits := map[string]checker.RateLimitInfo{
 		"salesforce": {
@@ -83,7 +84,7 @@ integrations:
 	)
 
 	// Validate
-	result, err := v.ValidateBytes(yaml)
+	result, err := v.ValidateBytes(context.Background(), yaml)
 	if err != nil {
 		fmt.Printf("Validation failed: %v\n", err)
 		return
@@ -97,8 +98,10 @@ integrations:
 
 	if len(result.Errors) > 0 {
 		fmt.Println("\nErrors:")
+
 		for i, issue := range result.Errors {
 			fmt.Printf("  %d. [%s] %s\n", i+1, issue.Rule, issue.Message)
+
 			if issue.Path != "" {
 				fmt.Printf("     Path: %s\n", issue.Path)
 			}
@@ -107,8 +110,10 @@ integrations:
 
 	if len(result.Warnings) > 0 {
 		fmt.Println("\nWarnings:")
+
 		for i, issue := range result.Warnings {
 			fmt.Printf("  %d. [%s] %s\n", i+1, issue.Rule, issue.Message)
+
 			if issue.Path != "" {
 				fmt.Printf("     Path: %s\n", issue.Path)
 			}

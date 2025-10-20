@@ -37,6 +37,7 @@ func buildPositionMap(node *yaml.Node) PositionMap {
 	posMap := NewPositionMap()
 	path := NewPathBuilder()
 	walkNode(node, path, posMap)
+
 	return posMap
 }
 
@@ -62,6 +63,7 @@ func walkNode(node *yaml.Node, path *PathBuilder, posMap PositionMap) {
 			if i+1 >= len(node.Content) {
 				break
 			}
+
 			keyNode := node.Content[i]
 			valueNode := node.Content[i+1]
 

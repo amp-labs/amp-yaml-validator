@@ -69,12 +69,12 @@ func TestExtractDirectives(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name          string
-		yaml          string
-		wantDirCount  int
-		checkPath     string
-		checkRule     string
-		shouldIgnore  bool
+		name         string
+		yaml         string
+		wantDirCount int
+		checkPath    string
+		checkRule    string
+		shouldIgnore bool
 	}{
 		{
 			name: "inline comment",

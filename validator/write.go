@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -10,19 +11,20 @@ import (
 )
 
 // validateWrite validates the write action.
-func validateWrite(ctx *ValidationContext, integration openapi.Integration, write *openapi.IntegrationWrite, basePath string) {
+func validateWrite(ctx context.Context, valCtx *ValidationContext, integration openapi.Integration, write *openapi.IntegrationWrite, basePath string) {
 	if write == nil {
 		return
 	}
 
 	// Check that objects list exists and is not empty
 	if write.Objects == nil || len(*write.Objects) == 0 {
-		ctx.AddErrorWithSuggestion(
+		valCtx.AddErrorWithSuggestion(
 			types.ErrMissingWriteObjects,
 			fmt.Sprintf("%s.write.objects", basePath),
 			types.RuleWriteObjects,
 			"Add at least one object to the write.objects list",
 		)
+
 		return
 	}
 
@@ -32,7 +34,7 @@ func validateWrite(ctx *ValidationContext, integration openapi.Integration, writ
 
 		// Check required fields
 		if obj.ObjectName == "" {
-			ctx.AddErrorWithSuggestion(
+			valCtx.AddErrorWithSuggestion(
 				"Object name is required",
 				fmt.Sprintf("%s.objectName", objectPath),
 				types.RuleRequiredField,
@@ -40,45 +42,48 @@ func validateWrite(ctx *ValidationContext, integration openapi.Integration, writ
 			)
 		} else {
 			// Validate object name against provider schema
-			validateObjectNameForWrite(ctx, integration.Provider, integration.Module, obj.ObjectName, fmt.Sprintf("%s.objectName", objectPath))
+			validateObjectNameForWrite(ctx, valCtx, integration.Provider, integration.Module, obj.ObjectName, fmt.Sprintf("%s.objectName", objectPath))
 		}
 	}
 }
 
 // validateObjectNameForWrite validates that an object name exists in the provider's schema.
-func validateObjectNameForWrite(ctx *ValidationContext, provider string, module string, objectName string, path string) {
+func validateObjectNameForWrite(ctx context.Context, valCtx *ValidationContext, provider string, module string, objectName string, path string) {
 	// Skip validation if provider is not set
 	if provider == "" {
 		return
 	}
 
 	// Try to get object list from catalog
-	objects, err := ctx.CatalogProvider.ListObjects(provider, module)
+	objects, err := valCtx.CatalogProvider.ListObjects(ctx, provider, module)
 
 	// If catalog doesn't support object enumeration, add a warning
 	if err != nil && errors.Is(err, catalog.ErrNotSupported) {
-		ctx.AddWarningWithSuggestion(
+		valCtx.AddWarningWithSuggestion(
 			"Object name validation skipped (catalog does not support object enumeration)",
 			path,
 			types.RuleCatalogAccess,
 			"Consider manually verifying that this object is supported by the provider",
 		)
+
 		return
 	}
 
 	// If we got an error other than ErrNotSupported, add a warning
 	if err != nil {
-		ctx.AddWarningWithSuggestion(
+		valCtx.AddWarningWithSuggestion(
 			fmt.Sprintf("Failed to retrieve object list from catalog: %s", err.Error()),
 			path,
 			types.RuleCatalogAccess,
 			"Consider manually verifying that this object is supported by the provider",
 		)
+
 		return
 	}
 
 	// Check if object is in the list
 	found := false
+
 	for _, obj := range objects {
 		if obj == objectName {
 			found = true
@@ -91,7 +96,8 @@ func validateObjectNameForWrite(ctx *ValidationContext, provider string, module 
 		if module != "" {
 			providerDesc = fmt.Sprintf("%s (module: %s)", provider, module)
 		}
-		ctx.AddErrorWithSuggestion(
+
+		valCtx.AddErrorWithSuggestion(
 			fmt.Sprintf("Object '%s' is not supported by provider %s", objectName, providerDesc),
 			path,
 			types.RuleObjectExists,

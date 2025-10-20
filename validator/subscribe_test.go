@@ -292,7 +292,7 @@ func TestValidateSubscribe(t *testing.T) {
 			ctx := NewValidationContext(nil, posMap, parser.NewDirectiveMap(), nil, nil, nil, nil)
 
 			// Validate
-			validateSubscribe(ctx, tt.integration, path)
+			validateSubscribe(t.Context(), ctx, tt.integration, path)
 
 			// Check errors
 			errors := ctx.GetErrors()
@@ -420,7 +420,7 @@ func TestValidateSubscribeLineNumbers(t *testing.T) {
 			ctx := NewValidationContext(nil, posMap, parser.NewDirectiveMap(), nil, nil, nil, nil)
 
 			// Validate
-			validateSubscribe(ctx, tt.integration, tt.path)
+			validateSubscribe(t.Context(), ctx, tt.integration, tt.path)
 
 			// Check that error has correct line number and path
 			errors := ctx.GetErrors()
@@ -499,7 +499,7 @@ func TestValidateSubscribeMultipleObjects(t *testing.T) {
 	ctx := NewValidationContext(nil, posMap, parser.NewDirectiveMap(), nil, nil, nil, nil)
 
 	// Validate
-	validateSubscribe(ctx, integration, path)
+	validateSubscribe(t.Context(), ctx, integration, path)
 
 	// Check errors - should have 2 errors (indices 1 and 3)
 	errors := ctx.GetErrors()
@@ -507,6 +507,7 @@ func TestValidateSubscribeMultipleObjects(t *testing.T) {
 
 	if len(errors) != expectedErrors {
 		t.Errorf("expected %d errors, got %d", expectedErrors, len(errors))
+
 		for i, err := range errors {
 			t.Logf("Error %d: %s (line %d, rule: %s)", i, err.Message, err.Line, err.Rule)
 		}
@@ -716,7 +717,7 @@ func TestValidateSubscribeRequiredFields(t *testing.T) {
 			}
 
 			// Validate the object directly
-			validateSubscribeObject(ctx, integration, tt.object, path, 0)
+			validateSubscribeObject(t.Context(), ctx, integration, tt.object, path, 0)
 
 			// Check errors
 			errors := ctx.GetErrors()

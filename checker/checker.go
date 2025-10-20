@@ -1,6 +1,7 @@
 package checker
 
 import (
+	"context"
 	"errors"
 	"time"
 )
@@ -27,7 +28,7 @@ type DestinationChecker interface {
 	// Returns nil if the destination exists and is valid.
 	// Returns ErrDestinationNotFound if the destination doesn't exist.
 	// Returns other errors for unexpected failures (network issues, auth failures, etc.)
-	CheckDestination(destinationName string) error
+	CheckDestination(ctx context.Context, destinationName string) error
 }
 
 // MockDestinationChecker is a mock implementation of DestinationChecker for testing.
@@ -43,7 +44,7 @@ func NewMockDestinationChecker(destinations map[string]bool) DestinationChecker 
 }
 
 // CheckDestination checks if a destination exists in the mock.
-func (m *MockDestinationChecker) CheckDestination(destinationName string) error {
+func (m *MockDestinationChecker) CheckDestination(_ context.Context, destinationName string) error {
 	if m.destinations == nil {
 		return errors.New("mock not configured")
 	}
@@ -72,7 +73,7 @@ type ProviderAppChecker interface {
 	// Returns nil if the provider app exists and is properly configured.
 	// Returns ErrProviderAppNotFound if the provider app doesn't exist.
 	// Returns other errors for unexpected failures (network issues, auth failures, etc.)
-	CheckProviderApp(providerName string) error
+	CheckProviderApp(ctx context.Context, providerName string) error
 }
 
 // MockProviderAppChecker is a mock implementation of ProviderAppChecker for testing.
@@ -88,7 +89,7 @@ func NewMockProviderAppChecker(providerApps map[string]bool) ProviderAppChecker 
 }
 
 // CheckProviderApp checks if a provider app is configured in the mock.
-func (m *MockProviderAppChecker) CheckProviderApp(providerName string) error {
+func (m *MockProviderAppChecker) CheckProviderApp(_ context.Context, providerName string) error {
 	if m.providerApps == nil {
 		return errors.New("mock not configured")
 	}
@@ -126,7 +127,7 @@ type RateLimitChecker interface {
 	// GetRateLimitInfo returns rate limit recommendations for a provider.
 	// Returns RateLimitInfo with recommended intervals.
 	// Returns error if provider is not recognized or info cannot be retrieved.
-	GetRateLimitInfo(providerName string) (*RateLimitInfo, error)
+	GetRateLimitInfo(ctx context.Context, providerName string) (*RateLimitInfo, error)
 }
 
 // MockRateLimitChecker is a mock implementation of RateLimitChecker for testing.
@@ -142,7 +143,7 @@ func NewMockRateLimitChecker(rateLimits map[string]RateLimitInfo) RateLimitCheck
 }
 
 // GetRateLimitInfo returns rate limit info from the mock.
-func (m *MockRateLimitChecker) GetRateLimitInfo(providerName string) (*RateLimitInfo, error) {
+func (m *MockRateLimitChecker) GetRateLimitInfo(_ context.Context, providerName string) (*RateLimitInfo, error) {
 	if m.rateLimits == nil {
 		return nil, errors.New("mock not configured")
 	}

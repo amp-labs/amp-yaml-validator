@@ -30,6 +30,7 @@ func (pb *PathBuilder) PushObject(fieldName string) *PathBuilder {
 		componentType: "object",
 		name:          fieldName,
 	})
+
 	return newBuilder
 }
 
@@ -40,6 +41,7 @@ func (pb *PathBuilder) PushArray(index int) *PathBuilder {
 		componentType: "array",
 		name:          fmt.Sprintf("%d", index),
 	})
+
 	return newBuilder
 }
 
@@ -50,6 +52,7 @@ func (pb *PathBuilder) String() string {
 	}
 
 	var builder strings.Builder
+
 	for _, comp := range pb.components {
 		switch comp.componentType {
 		case "root":
@@ -63,6 +66,7 @@ func (pb *PathBuilder) String() string {
 			builder.WriteString("]")
 		}
 	}
+
 	return builder.String()
 }
 
@@ -70,6 +74,7 @@ func (pb *PathBuilder) String() string {
 func (pb *PathBuilder) Copy() *PathBuilder {
 	newComponents := make([]pathComponent, len(pb.components))
 	copy(newComponents, pb.components)
+
 	return &PathBuilder{
 		components: newComponents,
 	}

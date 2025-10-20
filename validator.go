@@ -2,6 +2,8 @@
 package ampyamlvalidator
 
 import (
+	"context"
+
 	"github.com/amp-labs/amp-yaml-validator/catalog"
 	"github.com/amp-labs/amp-yaml-validator/checker"
 	"github.com/amp-labs/amp-yaml-validator/openapi"
@@ -28,23 +30,23 @@ func NewValidator(opts ...Option) *Validator {
 
 // ValidateFile reads a YAML file and validates it.
 // This is a convenience function that creates a validator and validates the file.
-func ValidateFile(yamlPath string, opts ...Option) (*ValidationResult, error) {
+func ValidateFile(ctx context.Context, yamlPath string, opts ...Option) (*ValidationResult, error) {
 	v := NewValidator(opts...)
-	return v.ValidateFile(yamlPath)
+	return v.ValidateFile(ctx, yamlPath)
 }
 
 // ValidateBytes validates YAML bytes.
 // This is a convenience function that creates a validator and validates the bytes.
-func ValidateBytes(yamlBytes []byte, opts ...Option) (*ValidationResult, error) {
+func ValidateBytes(ctx context.Context, yamlBytes []byte, opts ...Option) (*ValidationResult, error) {
 	v := NewValidator(opts...)
-	return v.ValidateBytes(yamlBytes)
+	return v.ValidateBytes(ctx, yamlBytes)
 }
 
 // ValidateManifest validates an already-parsed manifest.
 // This is a convenience function that creates a validator and validates the manifest.
-func ValidateManifest(manifest *openapi.Manifest, opts ...Option) (*ValidationResult, error) {
+func ValidateManifest(ctx context.Context, manifest *openapi.Manifest, opts ...Option) (*ValidationResult, error) {
 	v := NewValidator(opts...)
-	return v.ValidateManifest(manifest)
+	return v.ValidateManifest(ctx, manifest)
 }
 
 // WithStrictMode treats warnings as errors.

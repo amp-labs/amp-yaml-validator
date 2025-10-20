@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -11,18 +12,18 @@ import (
 // validateAsyncRisks performs async error prevention checks (warnings).
 // These are configuration issues that would cause runtime failures in
 // asynchronous services (Temporal workflows, messenger services).
-func validateAsyncRisks(ctx *ValidationContext) {
-	validateDestinationReferences(ctx)
-	validateObjectExistence(ctx)
-	validateBackfillRisks(ctx)
-	validateScheduleFrequencyRisks(ctx)
+func validateAsyncRisks(ctx context.Context, valCtx *ValidationContext) {
+	validateDestinationReferences(ctx, valCtx)
+	validateObjectExistence(ctx, valCtx)
+	validateBackfillRisks(valCtx)
+	validateScheduleFrequencyRisks(valCtx)
 }
 
 // validateDestinationReferences warns about destination references that
 // cannot be validated statically. At runtime, these destinations must exist
 // and be active in the project.
-func validateDestinationReferences(ctx *ValidationContext) {
-	manifest := ctx.Manifest
+func validateDestinationReferences(ctx context.Context, valCtx *ValidationContext) {
+	manifest := valCtx.Manifest
 
 	// Track unique destinations to avoid duplicate warnings
 	destinations := make(map[string]string) // destination name -> first path that references it
@@ -57,10 +58,10 @@ func validateDestinationReferences(ctx *ValidationContext) {
 
 	// Check or warn about each unique destination
 	for destName, path := range destinations {
-		if ctx.DestinationChecker != nil {
+		if valCtx.DestinationChecker != nil {
 			// If a destination checker is provided, use it to validate
-			if err := ctx.DestinationChecker.CheckDestination(destName); err != nil {
-				ctx.AddErrorWithSuggestion(
+			if err := valCtx.DestinationChecker.CheckDestination(ctx, destName); err != nil {
+				valCtx.AddErrorWithSuggestion(
 					fmt.Sprintf("Destination %q does not exist or is not accessible: %v", destName, err),
 					path,
 					"destination-exists",
@@ -70,7 +71,7 @@ func validateDestinationReferences(ctx *ValidationContext) {
 			// If no error, destination exists - no warning needed
 		} else {
 			// No checker provided, issue a warning reminder
-			ctx.AddWarningWithSuggestion(
+			valCtx.AddWarningWithSuggestion(
 				fmt.Sprintf("Destination %q is referenced but cannot be validated statically", destName),
 				path,
 				"destination-exists",
@@ -83,11 +84,11 @@ func validateDestinationReferences(ctx *ValidationContext) {
 // validateObjectExistence warns about objects that cannot be validated against
 // the provider catalog. In the future, when object schemas are available,
 // this can be upgraded to an error.
-func validateObjectExistence(ctx *ValidationContext) {
-	manifest := ctx.Manifest
+func validateObjectExistence(ctx context.Context, valCtx *ValidationContext) {
+	manifest := valCtx.Manifest
 
 	for i, integration := range manifest.Integrations {
-		providerInfo, err := ctx.GetProviderInfo(integration.Provider)
+		providerInfo, err := valCtx.GetProviderInfo(ctx, integration.Provider)
 		if err != nil {
 			// Provider catalog unavailable, skip object validation
 			continue
@@ -96,7 +97,7 @@ func validateObjectExistence(ctx *ValidationContext) {
 		moduleName := integration.Module
 
 		// Try to get object list from catalog
-		objects, err := ctx.CatalogProvider.ListObjects(integration.Provider, moduleName)
+		objects, err := valCtx.CatalogProvider.ListObjects(ctx, integration.Provider, moduleName)
 		if err != nil {
 			// Object list not available (expected for now), issue warning
 			// In the future, when object schemas are available, this will be more strict
@@ -114,7 +115,7 @@ func validateObjectExistence(ctx *ValidationContext) {
 			for j, obj := range *integration.Read.Objects {
 				if !objectSet[obj.ObjectName] {
 					path := fmt.Sprintf("$.integrations[%d].read.objects[%d].objectName", i, j)
-					ctx.AddWarningWithSuggestion(
+					valCtx.AddWarningWithSuggestion(
 						fmt.Sprintf("Object %q is not found in provider %q catalog", obj.ObjectName, integration.Provider),
 						path,
 						types.RuleObjectExists,
@@ -129,7 +130,7 @@ func validateObjectExistence(ctx *ValidationContext) {
 			for j, obj := range *integration.Write.Objects {
 				if !objectSet[obj.ObjectName] {
 					path := fmt.Sprintf("$.integrations[%d].write.objects[%d].objectName", i, j)
-					ctx.AddWarningWithSuggestion(
+					valCtx.AddWarningWithSuggestion(
 						fmt.Sprintf("Object %q is not found in provider %q catalog", obj.ObjectName, integration.Provider),
 						path,
 						types.RuleObjectExists,
@@ -144,7 +145,7 @@ func validateObjectExistence(ctx *ValidationContext) {
 			for j, obj := range *integration.Subscribe.Objects {
 				if !objectSet[obj.ObjectName] {
 					path := fmt.Sprintf("$.integrations[%d].subscribe.objects[%d].objectName", i, j)
-					ctx.AddWarningWithSuggestion(
+					valCtx.AddWarningWithSuggestion(
 						fmt.Sprintf("Object %q is not found in provider %q catalog", obj.ObjectName, integration.Provider),
 						path,
 						types.RuleObjectExists,
@@ -229,6 +230,7 @@ func validateScheduleFrequencyRisks(ctx *ValidationContext) {
 				}
 
 				schedule := obj.Schedule
+
 				freq, err := getScheduleFrequency(schedule)
 				if err != nil {
 					continue // Skip if can't calculate frequency

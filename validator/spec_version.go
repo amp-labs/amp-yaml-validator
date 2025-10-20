@@ -17,6 +17,7 @@ func validateSpecVersion(ctx *ValidationContext) {
 			types.RuleSpecVersion,
 			fmt.Sprintf("Add specVersion: \"%s\" to your amp.yaml", types.CurrentSpecVersion),
 		)
+
 		return
 	}
 

@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/amp-labs/amp-yaml-validator/openapi"
@@ -9,40 +10,41 @@ import (
 
 // validateIntegrations validates that integrations list is present and non-empty,
 // then validates each integration.
-func validateIntegrations(ctx *ValidationContext) {
+func validateIntegrations(ctx context.Context, valCtx *ValidationContext) {
 	// Check that integrations list is present and non-empty
-	if len(ctx.Manifest.Integrations) == 0 {
-		ctx.AddError(
+	if len(valCtx.Manifest.Integrations) == 0 {
+		valCtx.AddError(
 			"Integrations list is required and must contain at least one integration",
 			"$.integrations",
 			types.RuleIntegrationStructure,
 		)
+
 		return
 	}
 
 	// Validate each integration
-	for i, integration := range ctx.Manifest.Integrations {
+	for i, integration := range valCtx.Manifest.Integrations {
 		basePath := fmt.Sprintf("$.integrations[%d]", i)
-		validateIntegration(ctx, integration, i)
+		validateIntegration(valCtx, integration, i)
 
 		// Validate read action
 		if integration.Read != nil {
-			validateRead(ctx, integration, integration.Read, basePath)
+			validateRead(ctx, valCtx, integration, integration.Read, basePath)
 		}
 
 		// Validate write action
 		if integration.Write != nil {
-			validateWrite(ctx, integration, integration.Write, basePath)
+			validateWrite(ctx, valCtx, integration, integration.Write, basePath)
 		}
 
 		// Validate subscribe action
 		if integration.Subscribe != nil {
-			validateSubscribe(ctx, integration, basePath)
+			validateSubscribe(ctx, valCtx, integration, basePath)
 		}
 
 		// Validate field mappings
 		if integration.Read != nil {
-			validateFieldMappings(ctx, integration.Read, basePath)
+			validateFieldMappings(valCtx, integration.Read, basePath)
 		}
 	}
 }

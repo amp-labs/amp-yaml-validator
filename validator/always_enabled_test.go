@@ -139,6 +139,7 @@ func TestValidateAlwaysEnabledObject(t *testing.T) {
 			errors := ctx.GetErrors()
 			if len(errors) != tt.wantErrors {
 				t.Errorf("expected %d errors, got %d", tt.wantErrors, len(errors))
+
 				for _, err := range errors {
 					t.Logf("  Error: %s (rule: %s, path: %s)", err.Message, err.Rule, err.Path)
 				}
@@ -238,6 +239,7 @@ func TestValidateAlwaysEnabledObjectLineNumbers(t *testing.T) {
 				if i >= len(errors) {
 					break
 				}
+
 				if errors[i].Line != expectedLine {
 					t.Errorf("error %d: expected line %d, got %d", i, expectedLine, errors[i].Line)
 				}
@@ -281,6 +283,7 @@ func TestValidateAlwaysEnabledObjectMultipleFields(t *testing.T) {
 	errors := ctx.GetErrors()
 	if len(errors) != 2 {
 		t.Errorf("expected 2 errors for fields with mapToName, got %d", len(errors))
+
 		for _, err := range errors {
 			t.Logf("  Error: %s (rule: %s, line: %d)", err.Message, err.Rule, err.Line)
 		}

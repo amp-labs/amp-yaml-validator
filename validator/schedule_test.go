@@ -277,6 +277,7 @@ func TestValidateScheduleMultipleObjects(t *testing.T) {
 	// Check errors - should have 2 errors (indices 1 and 3)
 	errors := ctx.GetErrors()
 	expectedErrors := 0
+
 	for _, s := range schedules {
 		if !s.isValid {
 			expectedErrors++
@@ -285,6 +286,7 @@ func TestValidateScheduleMultipleObjects(t *testing.T) {
 
 	if len(errors) != expectedErrors {
 		t.Errorf("expected %d errors, got %d", expectedErrors, len(errors))
+
 		for i, err := range errors {
 			t.Logf("Error %d: %s (line %d, rule: %s)", i, err.Message, err.Line, err.Rule)
 		}

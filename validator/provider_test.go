@@ -174,12 +174,13 @@ func TestValidateProviderCapabilities(t *testing.T) {
 			ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(), mockCatalog, nil, nil, nil)
 
 			// Validate
-			validateProviderCapabilities(ctx, integration, "$.integrations[0]")
+			validateProviderCapabilities(t.Context(), ctx, integration, "$.integrations[0]")
 
 			// Check errors
 			errors := ctx.GetErrors()
 			if len(errors) != tt.wantErrors {
 				t.Errorf("expected %d errors, got %d", tt.wantErrors, len(errors))
+
 				for _, err := range errors {
 					t.Logf("  Error: %s (rule: %s)", err.Message, err.Rule)
 				}
@@ -433,12 +434,13 @@ func TestValidateModuleSupport(t *testing.T) {
 			ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(), mockCatalog, nil, nil, nil)
 
 			// Validate
-			validateModuleSupport(ctx, integration, "$.integrations[0]")
+			validateModuleSupport(t.Context(), ctx, integration, "$.integrations[0]")
 
 			// Check errors
 			errors := ctx.GetErrors()
 			if len(errors) != tt.wantErrors {
 				t.Errorf("expected %d errors, got %d", tt.wantErrors, len(errors))
+
 				for _, err := range errors {
 					t.Logf("  Error: %s (rule: %s)", err.Message, err.Rule)
 				}
@@ -482,7 +484,7 @@ func TestValidateProviderNotFound(t *testing.T) {
 
 	ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(), mockCatalog, nil, nil, nil)
 
-	validateProviderCapabilities(ctx, integration, "$.integrations[0]")
+	validateProviderCapabilities(t.Context(), ctx, integration, "$.integrations[0]")
 
 	errors := ctx.GetErrors()
 	if len(errors) == 0 {

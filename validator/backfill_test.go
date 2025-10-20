@@ -279,6 +279,7 @@ func TestValidateBackfillMultipleObjects(t *testing.T) {
 	}
 
 	posMap := parser.NewPositionMap()
+
 	for i, b := range backfills {
 		// For empty DefaultPeriod (index 3), the validator tags will error
 		// so we need to set position on the backfill path itself
@@ -299,6 +300,7 @@ func TestValidateBackfillMultipleObjects(t *testing.T) {
 	// Check errors - should have 2 errors (indices 1 and 3)
 	errors := ctx.GetErrors()
 	expectedErrors := 0
+
 	for _, b := range backfills {
 		if !b.isValid {
 			expectedErrors++
@@ -307,6 +309,7 @@ func TestValidateBackfillMultipleObjects(t *testing.T) {
 
 	if len(errors) != expectedErrors {
 		t.Errorf("expected %d errors, got %d", expectedErrors, len(errors))
+
 		for i, err := range errors {
 			t.Logf("Error %d: %s (line %d, rule: %s)", i, err.Message, err.Line, err.Rule)
 		}

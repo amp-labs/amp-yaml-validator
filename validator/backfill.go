@@ -24,6 +24,7 @@ func validateBackfill(ctx *ValidationContext, backfill *openapi.Backfill, path s
 			types.RuleBackfillConfig,
 			"Check backfill configuration structure",
 		)
+
 		return
 	}
 

@@ -17,22 +17,21 @@ func validateFieldMappings(ctx *ValidationContext, read *openapi.IntegrationRead
 	_ = ctx
 	_ = read
 	_ = basePath
+
 	return
-
-	// if read == nil || read.Objects == nil {
-	// 	return
-	// }
-
+	//	if read == nil || read.Objects == nil {
+	//		return
+	//	}
+	//
 	// // Validate each object's field mappings
-	// for i, obj := range *read.Objects {
-	// 	objectPath := fmt.Sprintf("%s.read.objects[%d]", basePath, i)
-
-	// 	if obj.SelectedFieldMappings == nil || len(*obj.SelectedFieldMappings) == 0 {
-	// 		continue
-	// 	}
-
-	// 	checkDuplicateMappings(ctx, *obj.SelectedFieldMappings, objectPath)
-	// }
+	//
+	//	for i, obj := range *read.Objects {
+	//		objectPath := fmt.Sprintf("%s.read.objects[%d]", basePath, i)
+	//		if obj.SelectedFieldMappings == nil || len(*obj.SelectedFieldMappings) == 0 {
+	//			continue
+	//		}
+	//		checkDuplicateMappings(ctx, *obj.SelectedFieldMappings, objectPath)
+	//	}
 }
 
 // checkDuplicateMappings checks for duplicate destination field names in field mappings.

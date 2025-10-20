@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -94,20 +95,22 @@ func NewValidator(opts ...Option) *Validator {
 	for _, opt := range opts {
 		opt(v)
 	}
+
 	return v
 }
 
 // ValidateFile reads a YAML file and validates it.
-func (v *Validator) ValidateFile(yamlPath string) (*types.ValidationResult, error) {
+func (v *Validator) ValidateFile(ctx context.Context, yamlPath string) (*types.ValidationResult, error) {
 	yamlBytes, err := os.ReadFile(yamlPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
-	return v.ValidateBytes(yamlBytes)
+
+	return v.ValidateBytes(ctx, yamlBytes)
 }
 
 // ValidateBytes validates YAML bytes.
-func (v *Validator) ValidateBytes(yamlBytes []byte) (*types.ValidationResult, error) {
+func (v *Validator) ValidateBytes(ctx context.Context, yamlBytes []byte) (*types.ValidationResult, error) {
 	// Parse YAML
 	manifest, posMap, dirMap, err := parser.ParseYAML(yamlBytes)
 	if err != nil {
@@ -115,14 +118,14 @@ func (v *Validator) ValidateBytes(yamlBytes []byte) (*types.ValidationResult, er
 	}
 
 	// Create validation context
-	ctx := NewValidationContext(manifest, posMap, dirMap, v.catalogProvider, v.destinationChecker, v.providerAppChecker, v.rateLimitChecker)
+	valCtx := NewValidationContext(manifest, posMap, dirMap, v.catalogProvider, v.destinationChecker, v.providerAppChecker, v.rateLimitChecker)
 
 	// Run all validators
-	v.runValidators(ctx)
+	v.runValidators(ctx, valCtx)
 
 	// Build result
-	errors := ctx.GetErrors()
-	warnings := ctx.GetWarnings()
+	errors := valCtx.GetErrors()
+	warnings := valCtx.GetWarnings()
 
 	valid := len(errors) == 0
 	if v.strictMode {
@@ -137,18 +140,18 @@ func (v *Validator) ValidateBytes(yamlBytes []byte) (*types.ValidationResult, er
 }
 
 // ValidateManifest validates an already-parsed manifest.
-func (v *Validator) ValidateManifest(manifest *openapi.Manifest) (*types.ValidationResult, error) {
+func (v *Validator) ValidateManifest(ctx context.Context, manifest *openapi.Manifest) (*types.ValidationResult, error) {
 	// Create empty position map and directive map (line numbers will be 0, no directives)
 	posMap := parser.NewPositionMap()
 	dirMap := parser.NewDirectiveMap()
-	ctx := NewValidationContext(manifest, posMap, dirMap, v.catalogProvider, v.destinationChecker, v.providerAppChecker, v.rateLimitChecker)
+	valCtx := NewValidationContext(manifest, posMap, dirMap, v.catalogProvider, v.destinationChecker, v.providerAppChecker, v.rateLimitChecker)
 
 	// Run all validators
-	v.runValidators(ctx)
+	v.runValidators(ctx, valCtx)
 
 	// Build result
-	errors := ctx.GetErrors()
-	warnings := ctx.GetWarnings()
+	errors := valCtx.GetErrors()
+	warnings := valCtx.GetWarnings()
 
 	valid := len(errors) == 0
 	if v.strictMode {
@@ -163,18 +166,18 @@ func (v *Validator) ValidateManifest(manifest *openapi.Manifest) (*types.Validat
 }
 
 // runValidators runs all validation rules in sequence.
-func (v *Validator) runValidators(ctx *ValidationContext) {
+func (v *Validator) runValidators(ctx context.Context, valCtx *ValidationContext) {
 	// Universal validation
-	validateSpecVersion(ctx)
-	validateIntegrations(ctx)
+	validateSpecVersion(valCtx)
+	validateIntegrations(ctx, valCtx)
 
 	// Provider-specific validation
 	if !v.skipProviderValidation {
-		validateProviderSpecific(ctx)
+		validateProviderSpecific(ctx, valCtx)
 	}
 
 	// Async error prevention validation
 	if !v.skipAsyncValidation {
-		validateAsyncRisks(ctx)
+		validateAsyncRisks(ctx, valCtx)
 	}
 }

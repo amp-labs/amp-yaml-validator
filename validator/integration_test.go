@@ -24,6 +24,7 @@ func TestValidateValidFiles(t *testing.T) {
 	mockCatalog := createMockCatalog()
 
 	validTestDataDir := "/Users/chris/src/amp-yaml-validator/testdata/valid"
+
 	files, err := os.ReadDir(validTestDataDir)
 	if err != nil {
 		t.Fatalf("failed to read valid testdata directory: %v", err)
@@ -44,7 +45,7 @@ func TestValidateValidFiles(t *testing.T) {
 			validator := NewValidator(WithCatalogProvider(mockCatalog))
 
 			// Validate the file
-			result, err := validator.ValidateFile(filePath)
+			result, err := validator.ValidateFile(t.Context(), filePath)
 			if err != nil {
 				t.Fatalf("failed to validate file %s: %v", fileName, err)
 			}
@@ -52,6 +53,7 @@ func TestValidateValidFiles(t *testing.T) {
 			// Check that the file is valid
 			if !result.Valid {
 				t.Errorf("expected %s to be valid, but got errors:", fileName)
+
 				for _, validationErr := range result.Errors {
 					t.Logf("  Error at line %d: %s (rule: %s)", validationErr.Line, validationErr.Message, validationErr.Rule)
 				}
@@ -60,6 +62,7 @@ func TestValidateValidFiles(t *testing.T) {
 			// Warnings are allowed for valid files
 			if len(result.Warnings) > 0 {
 				t.Logf("File %s has %d warnings (allowed):", fileName, len(result.Warnings))
+
 				for _, warning := range result.Warnings {
 					t.Logf("  Warning at line %d: %s", warning.Line, warning.Message)
 				}
@@ -127,6 +130,7 @@ func TestValidateInvalidFiles(t *testing.T) {
 	}
 
 	invalidTestDataDir := "/Users/chris/src/amp-yaml-validator/testdata/invalid"
+
 	files, err := os.ReadDir(invalidTestDataDir)
 	if err != nil {
 		t.Fatalf("failed to read invalid testdata directory: %v", err)
@@ -147,7 +151,7 @@ func TestValidateInvalidFiles(t *testing.T) {
 			validator := NewValidator(WithCatalogProvider(mockCatalog))
 
 			// Validate the file
-			result, err := validator.ValidateFile(filePath)
+			result, err := validator.ValidateFile(t.Context(), filePath)
 			if err != nil {
 				t.Fatalf("failed to validate file %s: %v", fileName, err)
 			}
@@ -165,6 +169,7 @@ func TestValidateInvalidFiles(t *testing.T) {
 			// Check for expected error if configured
 			if expectedErr, ok := expectedErrors[fileName]; ok {
 				foundExpectedError := false
+
 				for _, validationErr := range result.Errors {
 					if validationErr.Rule == expectedErr.ruleID {
 						foundExpectedError = true
@@ -187,6 +192,7 @@ func TestValidateInvalidFiles(t *testing.T) {
 
 				if !foundExpectedError {
 					t.Errorf("expected error with rule %s, but got:", expectedErr.ruleID)
+
 					for _, validationErr := range result.Errors {
 						t.Logf("  Error at line %d: %s (rule: %s)", validationErr.Line, validationErr.Message, validationErr.Rule)
 					}
@@ -194,6 +200,7 @@ func TestValidateInvalidFiles(t *testing.T) {
 			} else {
 				// Log the errors for files without expected error configuration
 				t.Logf("File %s has %d errors (no expected error configured):", fileName, len(result.Errors))
+
 				for _, validationErr := range result.Errors {
 					t.Logf("  Error at line %d: %s (rule: %s)", validationErr.Line, validationErr.Message, validationErr.Rule)
 				}
@@ -223,13 +230,16 @@ func TestValidateSampleFiles(t *testing.T) {
 
 	// Find all amp.yaml files in samples directory
 	var sampleFiles []string
+
 	err := filepath.Walk(samplesDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
+
 		if !info.IsDir() && info.Name() == "amp.yaml" {
 			sampleFiles = append(sampleFiles, path)
 		}
+
 		return nil
 	})
 	if err != nil {
@@ -252,7 +262,7 @@ func TestValidateSampleFiles(t *testing.T) {
 			validator := NewValidator(WithCatalogProvider(mockCatalog))
 
 			// Validate the file
-			result, err := validator.ValidateFile(filePath)
+			result, err := validator.ValidateFile(t.Context(), filePath)
 			if err != nil {
 				t.Fatalf("failed to validate sample file %s: %v", filePath, err)
 			}
@@ -260,9 +270,11 @@ func TestValidateSampleFiles(t *testing.T) {
 			// Sample files should be valid (errors not allowed, warnings are OK)
 			if !result.Valid {
 				t.Errorf("expected sample file %s to be valid, but got errors:", filePath)
+
 				for _, validationErr := range result.Errors {
 					t.Logf("  Error at line %d: %s (rule: %s, path: %s)",
 						validationErr.Line, validationErr.Message, validationErr.Rule, validationErr.Path)
+
 					if validationErr.Suggestion != "" {
 						t.Logf("    Suggestion: %s", validationErr.Suggestion)
 					}
@@ -272,6 +284,7 @@ func TestValidateSampleFiles(t *testing.T) {
 			// Log warnings (allowed)
 			if len(result.Warnings) > 0 {
 				t.Logf("Sample file %s has %d warnings (allowed):", filePath, len(result.Warnings))
+
 				for _, warning := range result.Warnings {
 					t.Logf("  Warning at line %d: %s", warning.Line, warning.Message)
 				}
@@ -292,6 +305,7 @@ func TestValidateWithStrictMode(t *testing.T) {
 	mockCatalog := createMockCatalog()
 
 	validTestDataDir := "/Users/chris/src/amp-yaml-validator/testdata/valid"
+
 	files, err := os.ReadDir(validTestDataDir)
 	if err != nil {
 		t.Fatalf("failed to read valid testdata directory: %v", err)
@@ -315,7 +329,7 @@ func TestValidateWithStrictMode(t *testing.T) {
 			)
 
 			// Validate the file
-			result, err := validator.ValidateFile(filePath)
+			result, err := validator.ValidateFile(t.Context(), filePath)
 			if err != nil {
 				t.Fatalf("failed to validate file %s: %v", fileName, err)
 			}
@@ -327,6 +341,7 @@ func TestValidateWithStrictMode(t *testing.T) {
 
 			if !result.Valid && len(result.Errors) == 0 && len(result.Warnings) > 0 {
 				t.Logf("File %s is invalid in strict mode due to warnings:", fileName)
+
 				for _, warning := range result.Warnings {
 					t.Logf("  Warning at line %d: %s", warning.Line, warning.Message)
 				}
@@ -344,7 +359,7 @@ func TestValidateFileNotFound(t *testing.T) {
 
 	validator := NewValidator()
 
-	_, err := validator.ValidateFile("/nonexistent/path/to/file.yaml")
+	_, err := validator.ValidateFile(t.Context(), "/nonexistent/path/to/file.yaml")
 	if err == nil {
 		t.Error("expected error for nonexistent file, but got nil")
 	}
@@ -436,13 +451,14 @@ integrations:
 			validator := NewValidator(WithCatalogProvider(mockCatalog))
 
 			// Validate bytes
-			result, err := validator.ValidateBytes([]byte(tt.yaml))
+			result, err := validator.ValidateBytes(t.Context(), []byte(tt.yaml))
 			if err != nil {
 				t.Fatalf("failed to validate YAML: %v", err)
 			}
 
 			if result.Valid != tt.wantValid {
 				t.Errorf("expected valid=%v, got valid=%v", tt.wantValid, result.Valid)
+
 				if !result.Valid {
 					for _, validationErr := range result.Errors {
 						t.Logf("  Error: %s (rule: %s)", validationErr.Message, validationErr.Rule)
@@ -452,14 +468,17 @@ integrations:
 
 			if !tt.wantValid && tt.wantRule != "" {
 				foundRule := false
+
 				for _, validationErr := range result.Errors {
 					if validationErr.Rule == tt.wantRule {
 						foundRule = true
 						break
 					}
 				}
+
 				if !foundRule {
 					t.Errorf("expected error with rule %s, but got:", tt.wantRule)
+
 					for _, validationErr := range result.Errors {
 						t.Logf("  Error: %s (rule: %s)", validationErr.Message, validationErr.Rule)
 					}

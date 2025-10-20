@@ -77,15 +77,17 @@ func runValidation(cmd *cobra.Command, args []string) {
 	if strictMode {
 		opts = append(opts, validator.WithStrictMode(true))
 	}
+
 	if skipProvider {
 		opts = append(opts, validator.WithSkipProviderValidation())
 	}
+
 	if skipAsync {
 		opts = append(opts, validator.WithSkipAsyncValidation())
 	}
 
 	// Validate the file
-	result, err := validator.ValidateFile(filePath, opts...)
+	result, err := validator.ValidateFile(cmd.Context(), filePath, opts...)
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "Error validating file: %v\n", err)
 		os.Exit(1)
@@ -98,6 +100,7 @@ func runValidation(cmd *cobra.Command, args []string) {
 	if !result.Valid {
 		os.Exit(1)
 	}
+
 	os.Exit(0)
 }
 
@@ -115,6 +118,7 @@ func printResults(filePath string, result *validator.ValidationResult) {
 	// Print errors
 	if len(result.Errors) > 0 {
 		fmt.Printf("\n%s Errors (%d):\n", getSymbol("error"), len(result.Errors))
+
 		for i, issue := range result.Errors {
 			printIssue(i+1, issue)
 		}
@@ -123,6 +127,7 @@ func printResults(filePath string, result *validator.ValidationResult) {
 	// Print warnings
 	if len(result.Warnings) > 0 {
 		fmt.Printf("\n%s Warnings (%d):\n", getSymbol("warning"), len(result.Warnings))
+
 		for i, issue := range result.Warnings {
 			printIssue(i+1, issue)
 		}
@@ -131,6 +136,7 @@ func printResults(filePath string, result *validator.ValidationResult) {
 	// Print summary
 	fmt.Println()
 	fmt.Println(strings.Repeat("=", 60))
+
 	if result.Valid {
 		fmt.Printf("✓ Validation passed with %d warning(s)\n", len(result.Warnings))
 	} else {

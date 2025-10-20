@@ -47,6 +47,7 @@ func (pm PositionMap) GetOrDefault(path string) Position {
 
 	// Walk up the path hierarchy to find nearest parent position
 	currentPath := path
+
 	for {
 		// Find the last segment (after last dot or bracket)
 		lastDot := -1
@@ -56,9 +57,11 @@ func (pm PositionMap) GetOrDefault(path string) Position {
 			if currentPath[i] == '.' && lastDot == -1 {
 				lastDot = i
 			}
+
 			if currentPath[i] == '[' && lastBracket == -1 {
 				lastBracket = i
 			}
+
 			if lastDot != -1 && lastBracket != -1 {
 				break
 			}
@@ -66,6 +69,7 @@ func (pm PositionMap) GetOrDefault(path string) Position {
 
 		// Determine where to cut the path
 		var cutPos int
+
 		if lastDot == -1 && lastBracket == -1 {
 			// No more parents to try
 			break

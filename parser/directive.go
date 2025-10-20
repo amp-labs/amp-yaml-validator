@@ -33,6 +33,7 @@ func (dm DirectiveMap) ShouldIgnore(path, rule string) bool {
 
 	// Check parent paths (progressively remove path segments)
 	currentPath := path
+
 	for {
 		// Find last dot or bracket
 		lastDot := strings.LastIndex(currentPath, ".")
@@ -99,6 +100,7 @@ func parseDirective(comment string) ([]string, bool) {
 
 	// Parse comma-separated rules
 	rulesStr := strings.TrimSpace(matches[1])
+
 	rules := strings.Split(rulesStr, ",")
 	for i, rule := range rules {
 		rules[i] = strings.TrimSpace(rule)
@@ -113,6 +115,7 @@ func extractDirectives(node *yaml.Node) DirectiveMap {
 	dirMap := NewDirectiveMap()
 	path := NewPathBuilder()
 	walkNodeForDirectives(node, path, dirMap)
+
 	return dirMap
 }
 
@@ -155,6 +158,7 @@ func walkNodeForDirectives(node *yaml.Node, path *PathBuilder, dirMap DirectiveM
 			if i+1 >= len(node.Content) {
 				break
 			}
+
 			keyNode := node.Content[i]
 			valueNode := node.Content[i+1]
 

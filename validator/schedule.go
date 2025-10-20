@@ -22,6 +22,7 @@ func validateSchedule(ctx *ValidationContext, schedule string, path string) {
 			types.RuleScheduleSyntax,
 			"Use valid cron syntax (e.g., '*/10 * * * *' for every 10 minutes)",
 		)
+
 		return
 	}
 
@@ -34,6 +35,7 @@ func validateSchedule(ctx *ValidationContext, schedule string, path string) {
 			types.RuleScheduleSyntax,
 			"Use 5-part cron syntax: minute hour day month weekday",
 		)
+
 		return
 	}
 
@@ -48,6 +50,7 @@ func validateSchedule(ctx *ValidationContext, schedule string, path string) {
 			types.RuleScheduleMinimumInterval,
 			"Change schedule to */10 or greater (e.g., '*/10 * * * *' for every 10 minutes)",
 		)
+
 		return
 	}
 
@@ -64,6 +67,7 @@ func validateSchedule(ctx *ValidationContext, schedule string, path string) {
 						types.RuleScheduleMinimumInterval,
 						"Change schedule to */10 or greater (e.g., '*/10 * * * *' for every 10 minutes)",
 					)
+
 					return
 				}
 			}
@@ -73,6 +77,7 @@ func validateSchedule(ctx *ValidationContext, schedule string, path string) {
 	// Validate actual schedule frequency using gronx
 	// Use PrevTickBefore and NextTickAfter to check the interval, mirroring server logic
 	now := time.Now()
+
 	past, err := gronx.PrevTickBefore(schedule, now, true)
 	if err != nil {
 		ctx.AddErrorWithSuggestion(
@@ -81,6 +86,7 @@ func validateSchedule(ctx *ValidationContext, schedule string, path string) {
 			types.RuleScheduleSyntax,
 			"Use valid cron syntax (e.g., '*/10 * * * *' for every 10 minutes)",
 		)
+
 		return
 	}
 
@@ -92,6 +98,7 @@ func validateSchedule(ctx *ValidationContext, schedule string, path string) {
 			types.RuleScheduleSyntax,
 			"Use valid cron syntax (e.g., '*/10 * * * *' for every 10 minutes)",
 		)
+
 		return
 	}
 

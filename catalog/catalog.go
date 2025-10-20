@@ -1,6 +1,7 @@
 package catalog
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"sync"
@@ -16,20 +17,20 @@ var ErrNotSupported = errors.New("object enumeration not supported by catalog")
 // This abstraction allows dependency injection for testing.
 type CatalogProvider interface {
 	// GetProviderInfo retrieves provider information by name
-	GetProviderInfo(providerName string) (*providers.ProviderInfo, error)
+	GetProviderInfo(ctx context.Context, providerName string) (*providers.ProviderInfo, error)
 
 	// GetProviderSupport retrieves provider capabilities
-	GetProviderSupport(providerName string) (*providers.Support, error)
+	GetProviderSupport(ctx context.Context, providerName string) (*providers.Support, error)
 
 	// GetModuleInfo retrieves module information for a given provider and module ID
-	GetModuleInfo(providerName string, moduleID string) (*providers.ModuleInfo, error)
+	GetModuleInfo(ctx context.Context, providerName string, moduleID string) (*providers.ModuleInfo, error)
 
 	// ListObjects returns a list of known object names for a provider/module.
 	// Returns ErrNotSupported if the catalog does not expose object schemas.
-	ListObjects(providerName string, moduleID string) ([]string, error)
+	ListObjects(ctx context.Context, providerName string, moduleID string) ([]string, error)
 
 	// Ping checks if the catalog is accessible
-	Ping() error
+	Ping(ctx context.Context) error
 }
 
 // DefaultCatalogProvider implements CatalogProvider using the connectors package catalog.
@@ -54,8 +55,9 @@ func (p *DefaultCatalogProvider) loadCatalog() {
 }
 
 // GetProviderInfo retrieves provider information by name.
-func (p *DefaultCatalogProvider) GetProviderInfo(providerName string) (*providers.ProviderInfo, error) {
+func (p *DefaultCatalogProvider) GetProviderInfo(ctx context.Context, providerName string) (*providers.ProviderInfo, error) {
 	p.loadCatalog()
+
 	if p.err != nil {
 		return nil, fmt.Errorf("failed to load catalog: %w", p.err)
 	}
@@ -69,8 +71,8 @@ func (p *DefaultCatalogProvider) GetProviderInfo(providerName string) (*provider
 }
 
 // GetProviderSupport retrieves provider capabilities.
-func (p *DefaultCatalogProvider) GetProviderSupport(providerName string) (*providers.Support, error) {
-	info, err := p.GetProviderInfo(providerName)
+func (p *DefaultCatalogProvider) GetProviderSupport(ctx context.Context, providerName string) (*providers.Support, error) {
+	info, err := p.GetProviderInfo(ctx, providerName)
 	if err != nil {
 		return nil, err
 	}
@@ -79,8 +81,8 @@ func (p *DefaultCatalogProvider) GetProviderSupport(providerName string) (*provi
 }
 
 // GetModuleInfo retrieves module information for a given provider and module ID.
-func (p *DefaultCatalogProvider) GetModuleInfo(providerName string, moduleID string) (*providers.ModuleInfo, error) {
-	info, err := p.GetProviderInfo(providerName)
+func (p *DefaultCatalogProvider) GetModuleInfo(ctx context.Context, providerName string, moduleID string) (*providers.ModuleInfo, error) {
+	info, err := p.GetProviderInfo(ctx, providerName)
 	if err != nil {
 		return nil, err
 	}
@@ -91,6 +93,7 @@ func (p *DefaultCatalogProvider) GetModuleInfo(providerName string, moduleID str
 
 	// Direct lookup without fallback
 	mods := *info.Modules
+
 	mod, ok := mods[common.ModuleID(moduleID)]
 	if !ok {
 		return nil, fmt.Errorf("module %s not found for provider %s", moduleID, providerName)
@@ -101,7 +104,7 @@ func (p *DefaultCatalogProvider) GetModuleInfo(providerName string, moduleID str
 
 // ListObjects returns a list of known object names for a provider/module.
 // Currently not supported by the connectors catalog - returns ErrNotSupported.
-func (p *DefaultCatalogProvider) ListObjects(providerName string, moduleID string) ([]string, error) {
+func (p *DefaultCatalogProvider) ListObjects(ctx context.Context, providerName string, moduleID string) ([]string, error) {
 	// The connectors package does not currently expose object schemas in the catalog.
 	// This is a best-effort implementation that returns ErrNotSupported to allow
 	// graceful degradation in validators.
@@ -109,7 +112,7 @@ func (p *DefaultCatalogProvider) ListObjects(providerName string, moduleID strin
 }
 
 // Ping checks if the catalog is accessible by attempting to load it.
-func (p *DefaultCatalogProvider) Ping() error {
+func (p *DefaultCatalogProvider) Ping(ctx context.Context) error {
 	p.loadCatalog()
 	return p.err
 }
@@ -138,7 +141,7 @@ func NewMockCatalogProviderWithObjects(catalog map[string]providers.ProviderInfo
 }
 
 // GetProviderInfo retrieves provider information from the mock catalog.
-func (m *MockCatalogProvider) GetProviderInfo(providerName string) (*providers.ProviderInfo, error) {
+func (m *MockCatalogProvider) GetProviderInfo(ctx context.Context, providerName string) (*providers.ProviderInfo, error) {
 	info, ok := m.catalog[providerName]
 	if !ok {
 		return nil, fmt.Errorf("provider %s not found in catalog", providerName)
@@ -148,8 +151,8 @@ func (m *MockCatalogProvider) GetProviderInfo(providerName string) (*providers.P
 }
 
 // GetProviderSupport retrieves provider capabilities from the mock catalog.
-func (m *MockCatalogProvider) GetProviderSupport(providerName string) (*providers.Support, error) {
-	info, err := m.GetProviderInfo(providerName)
+func (m *MockCatalogProvider) GetProviderSupport(ctx context.Context, providerName string) (*providers.Support, error) {
+	info, err := m.GetProviderInfo(ctx, providerName)
 	if err != nil {
 		return nil, err
 	}
@@ -158,8 +161,8 @@ func (m *MockCatalogProvider) GetProviderSupport(providerName string) (*provider
 }
 
 // GetModuleInfo retrieves module information from the mock catalog.
-func (m *MockCatalogProvider) GetModuleInfo(providerName string, moduleID string) (*providers.ModuleInfo, error) {
-	info, err := m.GetProviderInfo(providerName)
+func (m *MockCatalogProvider) GetModuleInfo(ctx context.Context, providerName string, moduleID string) (*providers.ModuleInfo, error) {
+	info, err := m.GetProviderInfo(ctx, providerName)
 	if err != nil {
 		return nil, err
 	}
@@ -170,6 +173,7 @@ func (m *MockCatalogProvider) GetModuleInfo(providerName string, moduleID string
 
 	// Direct lookup without fallback
 	mods := *info.Modules
+
 	mod, ok := mods[common.ModuleID(moduleID)]
 	if !ok {
 		return nil, fmt.Errorf("module %s not found for provider %s", moduleID, providerName)
@@ -180,7 +184,7 @@ func (m *MockCatalogProvider) GetModuleInfo(providerName string, moduleID string
 
 // ListObjects returns a list of known object names for a provider/module from the mock catalog.
 // The mock can optionally provide object lists for testing. If not provided, returns ErrNotSupported.
-func (m *MockCatalogProvider) ListObjects(providerName string, moduleID string) ([]string, error) {
+func (m *MockCatalogProvider) ListObjects(ctx context.Context, providerName string, moduleID string) ([]string, error) {
 	if m.objects == nil {
 		return nil, ErrNotSupported
 	}
@@ -200,6 +204,6 @@ func (m *MockCatalogProvider) ListObjects(providerName string, moduleID string) 
 }
 
 // Ping always returns nil for the mock catalog provider.
-func (m *MockCatalogProvider) Ping() error {
+func (m *MockCatalogProvider) Ping(ctx context.Context) error {
 	return nil
 }

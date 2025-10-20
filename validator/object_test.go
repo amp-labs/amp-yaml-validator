@@ -87,11 +87,13 @@ func TestValidateObjectNameRead(t *testing.T) {
 
 			// Create mock catalog with objects
 			objectsMap := make(map[string][]string)
+
 			if tt.catalogSupported {
 				key := tt.provider
 				if tt.module != "" {
 					key = tt.provider + ":" + tt.module
 				}
+
 				objectsMap[key] = tt.supportedObjects
 			}
 
@@ -128,12 +130,13 @@ func TestValidateObjectNameRead(t *testing.T) {
 			ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(), mockCatalog, nil, nil, nil)
 
 			// Validate
-			validateRead(ctx, integration, integration.Read, "$.integrations[0]")
+			validateRead(t.Context(), ctx, integration, integration.Read, "$.integrations[0]")
 
 			// Check errors
 			errors := ctx.GetErrors()
 			if len(errors) != tt.wantErrorCount {
 				t.Errorf("expected %d errors, got %d", tt.wantErrorCount, len(errors))
+
 				for _, err := range errors {
 					t.Logf("  Error: %s (rule: %s)", err.Message, err.Rule)
 				}
@@ -143,6 +146,7 @@ func TestValidateObjectNameRead(t *testing.T) {
 			warnings := ctx.GetWarnings()
 			if len(warnings) != tt.wantWarningCount {
 				t.Errorf("expected %d warnings, got %d", tt.wantWarningCount, len(warnings))
+
 				for _, warn := range warnings {
 					t.Logf("  Warning: %s (rule: %s)", warn.Message, warn.Rule)
 				}
@@ -151,12 +155,14 @@ func TestValidateObjectNameRead(t *testing.T) {
 			// Check specific error rule if expected
 			if tt.expectedErrorRule != "" && len(errors) > 0 {
 				found := false
+
 				for _, err := range errors {
 					if err.Rule == tt.expectedErrorRule {
 						found = true
 						break
 					}
 				}
+
 				if !found {
 					t.Errorf("expected error rule %s not found", tt.expectedErrorRule)
 				}
@@ -165,12 +171,14 @@ func TestValidateObjectNameRead(t *testing.T) {
 			// Check specific warning rule if expected
 			if tt.expectedWarningRule != "" && len(warnings) > 0 {
 				found := false
+
 				for _, warn := range warnings {
 					if warn.Rule == tt.expectedWarningRule {
 						found = true
 						break
 					}
 				}
+
 				if !found {
 					t.Errorf("expected warning rule %s not found", tt.expectedWarningRule)
 				}
@@ -256,11 +264,13 @@ func TestValidateObjectNameWrite(t *testing.T) {
 
 			// Create mock catalog with objects
 			objectsMap := make(map[string][]string)
+
 			if tt.catalogSupported {
 				key := tt.provider
 				if tt.module != "" {
 					key = tt.provider + ":" + tt.module
 				}
+
 				objectsMap[key] = tt.supportedObjects
 			}
 
@@ -295,12 +305,13 @@ func TestValidateObjectNameWrite(t *testing.T) {
 			ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(), mockCatalog, nil, nil, nil)
 
 			// Validate
-			validateWrite(ctx, integration, integration.Write, "$.integrations[0]")
+			validateWrite(t.Context(), ctx, integration, integration.Write, "$.integrations[0]")
 
 			// Check errors
 			errors := ctx.GetErrors()
 			if len(errors) != tt.wantErrorCount {
 				t.Errorf("expected %d errors, got %d", tt.wantErrorCount, len(errors))
+
 				for _, err := range errors {
 					t.Logf("  Error: %s (rule: %s)", err.Message, err.Rule)
 				}
@@ -310,6 +321,7 @@ func TestValidateObjectNameWrite(t *testing.T) {
 			warnings := ctx.GetWarnings()
 			if len(warnings) != tt.wantWarningCount {
 				t.Errorf("expected %d warnings, got %d", tt.wantWarningCount, len(warnings))
+
 				for _, warn := range warnings {
 					t.Logf("  Warning: %s (rule: %s)", warn.Message, warn.Rule)
 				}
@@ -318,12 +330,14 @@ func TestValidateObjectNameWrite(t *testing.T) {
 			// Check specific error rule if expected
 			if tt.expectedErrorRule != "" && len(errors) > 0 {
 				found := false
+
 				for _, err := range errors {
 					if err.Rule == tt.expectedErrorRule {
 						found = true
 						break
 					}
 				}
+
 				if !found {
 					t.Errorf("expected error rule %s not found", tt.expectedErrorRule)
 				}
@@ -332,12 +346,14 @@ func TestValidateObjectNameWrite(t *testing.T) {
 			// Check specific warning rule if expected
 			if tt.expectedWarningRule != "" && len(warnings) > 0 {
 				found := false
+
 				for _, warn := range warnings {
 					if warn.Rule == tt.expectedWarningRule {
 						found = true
 						break
 					}
 				}
+
 				if !found {
 					t.Errorf("expected warning rule %s not found", tt.expectedWarningRule)
 				}
@@ -423,11 +439,13 @@ func TestValidateObjectNameSubscribe(t *testing.T) {
 
 			// Create mock catalog with objects
 			objectsMap := make(map[string][]string)
+
 			if tt.catalogSupported {
 				key := tt.provider
 				if tt.module != "" {
 					key = tt.provider + ":" + tt.module
 				}
+
 				objectsMap[key] = tt.supportedObjects
 			}
 
@@ -476,12 +494,13 @@ func TestValidateObjectNameSubscribe(t *testing.T) {
 			ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(), mockCatalog, nil, nil, nil)
 
 			// Validate
-			validateSubscribe(ctx, integration, "$.integrations[0]")
+			validateSubscribe(t.Context(), ctx, integration, "$.integrations[0]")
 
 			// Check errors
 			errors := ctx.GetErrors()
 			if len(errors) != tt.wantErrorCount {
 				t.Errorf("expected %d errors, got %d", tt.wantErrorCount, len(errors))
+
 				for _, err := range errors {
 					t.Logf("  Error: %s (rule: %s)", err.Message, err.Rule)
 				}
@@ -491,6 +510,7 @@ func TestValidateObjectNameSubscribe(t *testing.T) {
 			warnings := ctx.GetWarnings()
 			if len(warnings) != tt.wantWarningCount {
 				t.Errorf("expected %d warnings, got %d", tt.wantWarningCount, len(warnings))
+
 				for _, warn := range warnings {
 					t.Logf("  Warning: %s (rule: %s)", warn.Message, warn.Rule)
 				}
@@ -499,12 +519,14 @@ func TestValidateObjectNameSubscribe(t *testing.T) {
 			// Check specific error rule if expected
 			if tt.expectedErrorRule != "" && len(errors) > 0 {
 				found := false
+
 				for _, err := range errors {
 					if err.Rule == tt.expectedErrorRule {
 						found = true
 						break
 					}
 				}
+
 				if !found {
 					t.Errorf("expected error rule %s not found", tt.expectedErrorRule)
 				}
@@ -513,12 +535,14 @@ func TestValidateObjectNameSubscribe(t *testing.T) {
 			// Check specific warning rule if expected
 			if tt.expectedWarningRule != "" && len(warnings) > 0 {
 				found := false
+
 				for _, warn := range warnings {
 					if warn.Rule == tt.expectedWarningRule {
 						found = true
 						break
 					}
 				}
+
 				if !found {
 					t.Errorf("expected warning rule %s not found", tt.expectedWarningRule)
 				}
@@ -580,12 +604,13 @@ func TestValidateObjectNameMultipleObjects(t *testing.T) {
 	ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(), mockCatalog, nil, nil, nil)
 
 	// Validate
-	validateRead(ctx, integration, integration.Read, "$.integrations[0]")
+	validateRead(t.Context(), ctx, integration, integration.Read, "$.integrations[0]")
 
 	// Check errors - should have 2 errors (for the 2 invalid objects)
 	errors := ctx.GetErrors()
 	if len(errors) != 2 {
 		t.Errorf("expected 2 errors, got %d", len(errors))
+
 		for _, err := range errors {
 			t.Logf("  Error: %s (rule: %s)", err.Message, err.Rule)
 		}
@@ -628,7 +653,7 @@ func TestValidateObjectNameEmptyProvider(t *testing.T) {
 	ctx := NewValidationContext(&openapi.Manifest{}, parser.NewPositionMap(), parser.NewDirectiveMap(), mockCatalog, nil, nil, nil)
 
 	// Validate
-	validateRead(ctx, integration, integration.Read, "$.integrations[0]")
+	validateRead(t.Context(), ctx, integration, integration.Read, "$.integrations[0]")
 
 	// Check that there are no object validation errors (only required field errors)
 	errors := ctx.GetErrors()
