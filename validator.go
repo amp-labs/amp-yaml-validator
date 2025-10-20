@@ -2,6 +2,8 @@
 package ampyamlvalidator
 
 import (
+	"github.com/amp-labs/amp-yaml-validator/catalog"
+	"github.com/amp-labs/amp-yaml-validator/checker"
 	"github.com/amp-labs/amp-yaml-validator/openapi"
 	"github.com/amp-labs/amp-yaml-validator/types"
 	"github.com/amp-labs/amp-yaml-validator/validator"
@@ -58,4 +60,24 @@ func WithSkipProviderValidation() Option {
 // WithSkipAsyncValidation skips async error prevention validation (for Phase 3).
 func WithSkipAsyncValidation() Option {
 	return validator.WithSkipAsyncValidation()
+}
+
+// WithDestinationChecker sets a custom destination checker for validation.
+func WithDestinationChecker(c checker.DestinationChecker) Option {
+	return validator.WithDestinationChecker(c)
+}
+
+// WithProviderAppChecker sets a custom provider app checker for validation.
+func WithProviderAppChecker(c checker.ProviderAppChecker) Option {
+	return validator.WithProviderAppChecker(c)
+}
+
+// WithRateLimitChecker sets a custom rate limit checker for validation.
+func WithRateLimitChecker(c checker.RateLimitChecker) Option {
+	return validator.WithRateLimitChecker(c)
+}
+
+// WithCatalogProvider sets a custom catalog provider for validation.
+func WithCatalogProvider(provider catalog.CatalogProvider) Option {
+	return validator.WithCatalogProvider(provider)
 }
