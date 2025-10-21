@@ -162,6 +162,8 @@ func (v *Validator) ValidateManifest(ctx context.Context, manifest *openapi.Mani
 	valid := len(errors) == 0
 	if v.strictMode {
 		valid = valid && len(warnings) == 0
+		errors = append(errors, warnings...)
+		warnings = nil
 	}
 
 	return &types.ValidationResult{
