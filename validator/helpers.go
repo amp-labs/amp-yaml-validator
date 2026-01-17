@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 
 	"github.com/amp-labs/amp-yaml-validator/catalog"
 	"github.com/amp-labs/amp-yaml-validator/types"
@@ -52,15 +53,7 @@ func validateObjectNameCommon(
 	}
 
 	// Check if object is in the list
-	found := false
-
-	for _, obj := range objects {
-		if obj == objectName {
-			found = true
-
-			break
-		}
-	}
+	found := slices.Contains(objects, objectName)
 
 	if !found {
 		providerDesc := provider

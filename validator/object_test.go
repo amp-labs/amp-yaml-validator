@@ -484,11 +484,17 @@ func TestValidateObjectNameSubscribe(t *testing.T) {
 				},
 			}
 
+			updateEnabled := openapi.Always
+			watchFieldsAuto := openapi.UpdateEventWatchFieldsAutoAll
 			subscribeObjects := []openapi.IntegrationSubscribeObject{
 				{
 					ObjectName:              tt.objectName,
 					Destination:             "dest",
 					InheritFieldsAndMapping: true, // Must be true
+					UpdateEvent: &openapi.UpdateEvent{
+						Enabled:         &updateEnabled,   // At least one event must be enabled
+						WatchFieldsAuto: &watchFieldsAuto, // Required for updateEvent
+					},
 				},
 			}
 

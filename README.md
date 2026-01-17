@@ -11,12 +11,12 @@ The `amp-yaml-validator` validates `amp.yaml` files against spec version 1.0.0, 
 - **Schema validation**: Structural correctness, required fields, data types
 - **Business rules**: Schedule frequency, backfill constraints, field mappings, subscribe constraints
 - **Provider capabilities**: Verifies provider supports requested actions (read/write/subscribe/proxy)
-- **Provider-specific limits**: Salesforce CDC limits, module support
+- **Provider-specific limits**: Salesforce CDC limits, Google Calendar backfill constraints, Snowflake requirements
 - **Async error prevention**: Large backfills, destination references, rate limit risks
 
 ## Key Features
 
-- **60+ validation rules** covering all aspects of amp.yaml configuration
+- **69 validation rules** covering all aspects of amp.yaml configuration
 - **Precise error reporting** with line numbers and YAML paths (e.g., `$.integrations[0].read.objects[1].schedule`)
 - **Provider catalog integration** validates against actual provider capabilities from connectors library
 - **Flexible destination checking** with injectable interface for client-side or server-side validation
@@ -235,6 +235,9 @@ Warnings:
   - Must have corresponding `read` action
   - `inheritFieldsAndMapping` must be `true`
   - Update events require either `requiredWatchFields` or `watchFieldsAuto` (not both)
+  - At least one event type must be enabled (`createEvent`, `updateEvent`, `deleteEvent`, or `associationChangeEvent`)
+  - `requiredWatchFields` cannot contain nested paths (dots or brackets)
+- **Duplicate object detection**: Same `objectName` cannot appear twice within the same action (read/write/subscribe)
 
 ### Provider-Specific Rules
 
@@ -244,6 +247,10 @@ The validator integrates with the connectors catalog to check provider capabilit
 - **Capability support**: Provider must support requested actions (read/write/subscribe/proxy)
 - **Module support**: If module specified, provider must support that module and its capabilities
 - **Salesforce limits**: Maximum 5 subscribe objects (CDC platform limit)
+- **Google Calendar constraints**:
+  - `events` object cannot use `fullHistory` backfill
+  - `events` object backfill limited to maximum 28 days
+- **Snowflake constraints**: Must use `fullHistory` backfill (days-based not supported)
 - **Graceful degradation**: If catalog unavailable, issues warnings instead of errors
 
 ### Async Error Prevention (Warnings)
@@ -344,18 +351,25 @@ See [CLAUDE.md](./CLAUDE.md) for detailed development patterns and examples.
 
 ## Documentation
 
-- **[VALIDATION_RULES.md](./VALIDATION_RULES.md)**: Complete specification of all 60+ validation rules with examples
+- **[VALIDATION_RULES.md](./VALIDATION_RULES.md)**: Complete specification of all 69 validation rules with examples
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)**: Detailed design decisions and implementation phases
 - **[CLAUDE.md](./CLAUDE.md)**: Developer guide for working with the codebase (for AI assistants and developers)
 
 ## Project Status
 
-**Current Phase**: Phase 4 Complete (All Validation Implemented)
+**Current Phase**: Phase 5 Complete (Semantic Validation Enhancement)
 
 - ✅ Phase 1: Documentation and architecture design
 - ✅ Phase 2: Universal validation rules implementation
 - ✅ Phase 3: Provider-specific validation with catalog integration
 - ✅ Phase 4: Async error prevention validation with destination checking
+- ✅ Phase 5: Semantic validation enhancement
+  - ✅ Duplicate object detection (read/write/subscribe)
+  - ✅ Subscribe event type validation (minimum one event required)
+  - ✅ Nested watch fields validation (no dots or brackets)
+  - ✅ Google Calendar backfill constraints (no fullHistory, max 28 days for events)
+  - ✅ Snowflake backfill requirements (fullHistory only)
+  - ✅ JSONPath validation utilities (nested field path detection)
 
 ## License
 

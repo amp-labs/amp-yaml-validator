@@ -1,0 +1,21 @@
+specVersion: 1.0.0
+integrations:
+  - provider: salesforce
+    read:
+      objects:
+        - objectName: Account
+          destination: webhook
+          schedule: "0 */12 * * *"
+          alwaysEnabled: true
+          requiredFields:
+            - Name
+            - Email
+            - Phone
+            - Website
+            - Industry
+          # For Config type validation: if selectedFieldMappings has fewer than requiredFields, should trigger error
+          # This is a placeholder for future Config type validation
+          selectedFields:
+            Name: true
+            Email: true
+            Phone: true

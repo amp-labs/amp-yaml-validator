@@ -1,0 +1,17 @@
+specVersion: 1.0.0
+integrations:
+  - provider: snowflake
+    read:
+      objects:
+        - objectName: CUSTOMERS
+          destination: webhook
+          schedule: "0 */12 * * *"
+          selectedFields:
+            ID: true
+            NAME: true
+            EMAIL: true
+            CREATED_AT: true
+            STATUS: true
+          backfill:
+            defaultPeriod:
+              fullHistory: true  # Valid for Snowflake - only option allowed

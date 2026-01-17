@@ -178,10 +178,14 @@ func (v *Validator) runValidators(ctx context.Context, valCtx *ValidationContext
 	// Universal validation
 	validateSpecVersion(valCtx)
 	validateIntegrations(ctx, valCtx)
+	validateDuplicateObjects(valCtx) // NEW: Duplicate object detection
+	validateJSONPathRules(valCtx)    // NEW: JSONPath and nested field validation
 
 	// Provider-specific validation
 	if !v.skipProviderValidation {
 		validateProviderSpecific(ctx, valCtx)
+		validateGoogleCalendarRules(valCtx) // NEW: Google Calendar constraints
+		validateSnowflakeRules(valCtx)      // NEW: Snowflake constraints
 	}
 
 	// Async error prevention validation

@@ -1,0 +1,35 @@
+specVersion: 1.0.0
+integrations:
+  - provider: salesforce
+    read:
+      objects:
+        - objectName: Account
+          destination: webhook
+          schedule: "0 */12 * * *"
+          selectedFields:
+            Name: true
+            Email: true
+        - objectName: Contact
+          destination: webhook
+          schedule: "0 */12 * * *"
+          selectedFields:
+            FirstName: true
+            LastName: true
+    subscribe:
+      objects:
+        - objectName: Account
+          destination: webhook
+          inheritFieldsAndMapping: true
+          updateEvent:
+            enabled: always
+            watchFieldsAuto: all
+        - objectName: Contact
+          destination: webhook
+          inheritFieldsAndMapping: true
+          createEvent:
+            enabled: always
+        - objectName: Account  # Duplicate - should trigger error
+          destination: webhook
+          inheritFieldsAndMapping: true
+          deleteEvent:
+            enabled: always

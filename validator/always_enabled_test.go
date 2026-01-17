@@ -356,7 +356,8 @@ func mustCreateField(fieldName string) openapi.IntegrationField {
 	}
 
 	result := openapi.IntegrationField{}
-	if err := result.FromIntegrationFieldExistent(field); err != nil {
+	err := result.FromIntegrationFieldExistent(field)
+	if err != nil {
 		panic(err)
 	}
 
@@ -371,9 +372,90 @@ func mustCreateFieldWithMapToName(fieldName, mapToName string) openapi.Integrati
 	}
 
 	result := openapi.IntegrationField{}
-	if err := result.FromIntegrationFieldExistent(field); err != nil {
+	err := result.FromIntegrationFieldExistent(field)
+	if err != nil {
 		panic(err)
 	}
 
 	return result
+}
+
+// TestValidateAlwaysEnabledObjectMinimumFields tests the warning for having fewer than 3 required fields.
+func TestValidateAlwaysEnabledObjectMinimumFields(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name           string
+		requiredFields []openapi.IntegrationField
+		wantWarnings   int
+	}{
+		{
+			name: "1 required field - warning",
+			requiredFields: []openapi.IntegrationField{
+				mustCreateField("id"),
+			},
+			wantWarnings: 1,
+		},
+		{
+			name: "2 required fields - warning",
+			requiredFields: []openapi.IntegrationField{
+				mustCreateField("id"),
+				mustCreateField("name"),
+			},
+			wantWarnings: 1,
+		},
+		{
+			name: "3 required fields - no warning",
+			requiredFields: []openapi.IntegrationField{
+				mustCreateField("id"),
+				mustCreateField("name"),
+				mustCreateField("email"),
+			},
+			wantWarnings: 0,
+		},
+		{
+			name: "4 required fields - no warning",
+			requiredFields: []openapi.IntegrationField{
+				mustCreateField("id"),
+				mustCreateField("name"),
+				mustCreateField("email"),
+				mustCreateField("phone"),
+			},
+			wantWarnings: 0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			object := openapi.IntegrationObject{
+				ObjectName:     "Account",
+				RequiredFields: &tt.requiredFields,
+				Schedule:       "*/15 * * * *",
+			}
+
+			posMap := parser.NewPositionMap()
+			ctx := NewValidationContext(nil, posMap, parser.NewDirectiveMap(), nil, nil, nil, nil)
+
+			validateAlwaysEnabledObject(ctx, object, "$.integrations[0].read.objects[0]")
+
+			errors := ctx.GetErrors()
+			if len(errors) > 0 {
+				t.Errorf("expected no errors, got %d: %v", len(errors), errors)
+			}
+
+			warnings := ctx.GetWarnings()
+			if len(warnings) != tt.wantWarnings {
+				t.Errorf("expected %d warnings, got %d: %v", tt.wantWarnings, len(warnings), warnings)
+			}
+
+			// If we expect a warning, check it's the right one
+			if tt.wantWarnings > 0 && len(warnings) > 0 {
+				if warnings[0].Rule != types.RuleAlwaysEnabledMinFields {
+					t.Errorf("expected rule %s, got %s", types.RuleAlwaysEnabledMinFields, warnings[0].Rule)
+				}
+			}
+		})
+	}
 }

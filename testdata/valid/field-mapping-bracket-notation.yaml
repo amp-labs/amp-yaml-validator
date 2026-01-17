@@ -1,0 +1,17 @@
+specVersion: 1.0.0
+integrations:
+  - provider: salesforce
+    read:
+      objects:
+        - objectName: Account
+          destination: webhook
+          schedule: "0 */12 * * *"
+          selectedFields:
+            Name: true
+            Email: true
+            Phone: true
+          selectedFieldMappings:
+            Name: name
+            Email: contact_email
+            Phone: phone_number
+            # Valid field mappings with simple names - no bracket notation errors

@@ -39,6 +39,10 @@ func TestValidateSubscribe(t *testing.T) {
 							ObjectName:              "Account",
 							Destination:             "webhook",
 							InheritFieldsAndMapping: true,
+							UpdateEvent: &openapi.UpdateEvent{
+								Enabled:         &enabled,
+								WatchFieldsAuto: &watchFieldsAutoAll,
+							},
 						},
 					},
 				},
@@ -455,11 +459,35 @@ func TestValidateSubscribeMultipleObjects(t *testing.T) {
 			ObjectName:              "Account",
 			Destination:             "webhook",
 			InheritFieldsAndMapping: true, // valid
+			UpdateEvent: &openapi.UpdateEvent{
+				Enabled: func() *openapi.UpdateEventEnabled {
+					e := openapi.Always
+
+					return &e
+				}(),
+				WatchFieldsAuto: func() *openapi.UpdateEventWatchFieldsAuto {
+					w := openapi.UpdateEventWatchFieldsAutoAll
+
+					return &w
+				}(),
+			},
 		},
 		{
 			ObjectName:              "Contact",
 			Destination:             "webhook",
 			InheritFieldsAndMapping: false, // invalid - must be true
+			UpdateEvent: &openapi.UpdateEvent{
+				Enabled: func() *openapi.UpdateEventEnabled {
+					e := openapi.Always
+
+					return &e
+				}(),
+				WatchFieldsAuto: func() *openapi.UpdateEventWatchFieldsAuto {
+					w := openapi.UpdateEventWatchFieldsAutoAll
+
+					return &w
+				}(),
+			},
 		},
 		{
 			ObjectName:              "Lead",
@@ -672,6 +700,9 @@ func TestValidateUpdateEvent(t *testing.T) {
 func TestValidateSubscribeRequiredFields(t *testing.T) {
 	t.Parallel()
 
+	enabled := openapi.Always
+	watchFieldsAuto := openapi.UpdateEventWatchFieldsAutoAll
+
 	tests := []struct {
 		name         string
 		object       openapi.IntegrationSubscribeObject
@@ -684,6 +715,10 @@ func TestValidateSubscribeRequiredFields(t *testing.T) {
 				ObjectName:              "Account",
 				Destination:             "webhook",
 				InheritFieldsAndMapping: true,
+				UpdateEvent: &openapi.UpdateEvent{
+					Enabled:         &enabled,
+					WatchFieldsAuto: &watchFieldsAuto,
+				},
 			},
 			wantErrors:   0,
 			expectedRule: "",
@@ -694,6 +729,10 @@ func TestValidateSubscribeRequiredFields(t *testing.T) {
 				ObjectName:              "",
 				Destination:             "webhook",
 				InheritFieldsAndMapping: true,
+				UpdateEvent: &openapi.UpdateEvent{
+					Enabled:         &enabled,
+					WatchFieldsAuto: &watchFieldsAuto,
+				},
 			},
 			wantErrors:   1,
 			expectedRule: types.RuleRequiredField,
@@ -704,6 +743,10 @@ func TestValidateSubscribeRequiredFields(t *testing.T) {
 				ObjectName:              "Account",
 				Destination:             "",
 				InheritFieldsAndMapping: true,
+				UpdateEvent: &openapi.UpdateEvent{
+					Enabled:         &enabled,
+					WatchFieldsAuto: &watchFieldsAuto,
+				},
 			},
 			wantErrors:   1,
 			expectedRule: types.RuleRequiredField,
@@ -714,6 +757,10 @@ func TestValidateSubscribeRequiredFields(t *testing.T) {
 				ObjectName:              "",
 				Destination:             "",
 				InheritFieldsAndMapping: true,
+				UpdateEvent: &openapi.UpdateEvent{
+					Enabled:         &enabled,
+					WatchFieldsAuto: &watchFieldsAuto,
+				},
 			},
 			wantErrors:   2,
 			expectedRule: types.RuleRequiredField,

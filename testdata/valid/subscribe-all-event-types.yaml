@@ -1,0 +1,26 @@
+specVersion: 1.0.0
+integrations:
+  - provider: salesforce
+    read:
+      objects:
+        - objectName: Account
+          destination: webhook
+          schedule: "0 */12 * * *"
+          selectedFields:
+            Name: true
+            Email: true
+            Phone: true
+            Website: true
+    subscribe:
+      objects:
+        - objectName: Account
+          destination: webhook
+          inheritFieldsAndMapping: true
+          createEvent:
+            enabled: always
+          updateEvent:
+            enabled: always
+            watchFieldsAuto: all
+          deleteEvent:
+            enabled: always
+          # All event types enabled - demonstrates valid configuration

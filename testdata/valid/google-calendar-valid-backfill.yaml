@@ -1,0 +1,17 @@
+specVersion: 1.0.0
+integrations:
+  - provider: googlecalendar
+    read:
+      objects:
+        - objectName: events
+          destination: webhook
+          schedule: "0 */12 * * *"
+          selectedFields:
+            summary: true
+            start: true
+            end: true
+            description: true
+            location: true
+          backfill:
+            defaultPeriod:
+              days: 28  # Maximum valid backfill for Google Calendar events

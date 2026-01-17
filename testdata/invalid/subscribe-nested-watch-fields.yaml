@@ -1,0 +1,22 @@
+specVersion: 1.0.0
+integrations:
+  - provider: salesforce
+    read:
+      objects:
+        - objectName: Account
+          destination: webhook
+          schedule: "0 */12 * * *"
+          selectedFields:
+            Name: true
+            Email: true
+    subscribe:
+      objects:
+        - objectName: Account
+          destination: webhook
+          inheritFieldsAndMapping: true
+          updateEvent:
+            enabled: always
+            requiredWatchFields:
+              - Name
+              - Address.Street  # Nested path - should trigger error
+              - Contact[0].Email  # Bracket notation - should trigger error
