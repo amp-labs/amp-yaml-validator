@@ -850,6 +850,146 @@ read:
 
 ---
 
+### 2.13 Duplicate Object Detection Rules
+
+#### Rule: No duplicate objects within same action
+- **Severity**: ERROR
+- **Rule ID**: `duplicate-read-object`, `duplicate-write-object`, `duplicate-subscribe-object`
+- **Source**: `validator/duplicate.go`
+- **Error constants**: `ErrDuplicateReadObject`, `ErrDuplicateWriteObject`, `ErrDuplicateSubscribeObject`
+- **Description**: The same `objectName` cannot appear twice within the same action (read.objects, write.objects, or subscribe.objects)
+- **Rationale**: Duplicate objects create ambiguous configuration and undefined behavior at runtime. The system cannot determine which configuration to use for the same object.
+- **Example violation**:
+```yaml
+integrations:
+  - provider: salesforce
+    read:
+      objects:
+        - objectName: Account
+          destination: webhook
+          schedule: "0 */12 * * *"
+          selectedFields:
+            Name: true
+        - objectName: Account  # Duplicate - ERROR
+          destination: webhook
+          schedule: "0 */6 * * *"
+          selectedFields:
+            Email: true
+```
+- **Example valid (same object in different actions is allowed)**:
+```yaml
+integrations:
+  - provider: salesforce
+    read:
+      objects:
+        - objectName: Account
+          destination: webhook
+          schedule: "0 */12 * * *"
+    write:
+      objects:
+        - objectName: Account  # Same object in write is OK
+          selectedFieldSettings:
+            Name:
+              writeOnCreate: always
+```
+
+---
+
+### 2.14 Subscribe Event Type Rules
+
+#### Rule: Subscribe object must have at least one event type enabled
+- **Severity**: ERROR
+- **Rule ID**: `subscribe-minimum-events`
+- **Source**: `validator/subscribe_events.go`
+- **Error constant**: `ErrNoSubscribeEvents`
+- **Description**: Every subscribe object must have at least one event type enabled: `createEvent`, `updateEvent`, `deleteEvent`, or `associationChangeEvent`
+- **Rationale**: A subscribe object with no events enabled serves no purpose and would not generate any webhooks or data flow
+- **Example violation**:
+```yaml
+subscribe:
+  objects:
+    - objectName: Account
+      destination: webhook
+      inheritFieldsAndMapping: true
+      # No events enabled - ERROR
+```
+- **Example valid**:
+```yaml
+subscribe:
+  objects:
+    - objectName: Account
+      destination: webhook
+      inheritFieldsAndMapping: true
+      updateEvent:
+        enabled: always
+        watchFieldsAuto: all
+```
+
+---
+
+### 2.15 Field Mapping Naming Rules
+
+#### Rule: Field mappings must use simple field names (no bracket notation)
+- **Severity**: NOTE
+- **Rule ID**: `field-mapping-simple-names`
+- **Source**: `validator/jsonpath.go`
+- **Description**: Field mappings in `mapToName` should use simple field names without bracket notation or complex JSONPath expressions
+- **Rationale**: The system is designed to work with simple field name mappings. Bracket notation and nested path expressions are intentionally not supported
+- **Current Implementation**: The `isNestedFieldPath()` function detects bracket notation but does not enforce restrictions (no error/warning generated for Manifest types)
+- **Note**: This is an intentional design decision, not a limitation
+- **Example (simple field names - standard pattern)**:
+```yaml
+read:
+  objects:
+    - objectName: Account
+      destination: webhook
+      selectedFieldMappings:
+        Name: name
+        Email: contact_email
+        Phone: phone_number
+```
+
+---
+
+### 2.16 RequiredWatchFields Nested Path Rules
+
+#### Rule: RequiredWatchFields cannot contain nested paths
+- **Severity**: ERROR
+- **Rule ID**: `watch-fields-no-nesting`
+- **Source**: `validator/subscribe_events.go`, `validator/jsonpath.go`
+- **Error constant**: `ErrNestedWatchField`
+- **Description**: The `requiredWatchFields` array in `updateEvent` cannot contain nested paths (fields with dots or brackets)
+- **Rationale**: Provider CDC/webhook implementations don't support watching nested fields. Only top-level fields can trigger update events
+- **Example violation**:
+```yaml
+subscribe:
+  objects:
+    - objectName: Account
+      destination: webhook
+      inheritFieldsAndMapping: true
+      updateEvent:
+        enabled: always
+        requiredWatchFields:
+          - Name
+          - Address.Street  # Nested path with dot - ERROR
+          - Contact[0].Email  # Bracket notation - ERROR
+```
+- **Example valid**:
+```yaml
+subscribe:
+  objects:
+    - objectName: Account
+      destination: webhook
+      inheritFieldsAndMapping: true
+      updateEvent:
+        enabled: always
+        requiredWatchFields:
+          - Name
+          - Email  # Top-level field only - valid
+```
+
+---
+
 ## 3. Provider-Specific Validation Rules
 
 These rules apply only to specific providers or depend on provider capabilities.
@@ -1004,6 +1144,124 @@ integrations:
   - name: my-integration
     provider: hubspot
     module: crm  # HubSpot supports CRM module
+```
+
+---
+
+### 3.5 Google Calendar Rules
+
+#### Rule: Google Calendar events object cannot use fullHistory backfill
+- **Severity**: ERROR
+- **Rule ID**: `google-calendar-no-full-history`
+- **Provider**: `googlecalendar`
+- **Object**: `events`
+- **Source**: `validator/provider_google_calendar.go`
+- **Error constant**: `ErrGoogleCalendarFullHistory`
+- **Description**: The Google Calendar `events` object cannot use `fullHistory: true` in backfill configuration
+- **Rationale**: Google Calendar API does not support fetching full event history; it only allows date-range queries
+- **Example violation**:
+```yaml
+integrations:
+  - provider: googlecalendar
+    read:
+      objects:
+        - objectName: events
+          destination: webhook
+          schedule: "0 */12 * * *"
+          backfill:
+            defaultPeriod:
+              fullHistory: true  # ERROR for Google Calendar events
+```
+- **Example valid**:
+```yaml
+integrations:
+  - provider: googlecalendar
+    read:
+      objects:
+        - objectName: events
+          destination: webhook
+          schedule: "0 */12 * * *"
+          backfill:
+            defaultPeriod:
+              days: 28  # Use days-based backfill instead
+```
+
+#### Rule: Google Calendar events backfill maximum 28 days
+- **Severity**: ERROR
+- **Rule ID**: `google-calendar-max-backfill`
+- **Provider**: `googlecalendar`
+- **Object**: `events`
+- **Source**: `validator/provider_google_calendar.go`
+- **Error constant**: `ErrGoogleCalendarMaxBackfill`
+- **Constant**: `MaxGoogleCalendarBackfillDays = 28`
+- **Description**: The Google Calendar `events` object backfill period cannot exceed 28 days
+- **Rationale**: Google Calendar API performance and rate limits make longer backfills impractical; 28 days is the recommended maximum
+- **Example violation**:
+```yaml
+integrations:
+  - provider: googlecalendar
+    read:
+      objects:
+        - objectName: events
+          destination: webhook
+          schedule: "0 */12 * * *"
+          backfill:
+            defaultPeriod:
+              days: 30  # Exceeds 28-day limit - ERROR
+```
+- **Example valid**:
+```yaml
+integrations:
+  - provider: googlecalendar
+    read:
+      objects:
+        - objectName: events
+          destination: webhook
+          schedule: "0 */12 * * *"
+          backfill:
+            defaultPeriod:
+              days: 28  # Maximum allowed
+```
+
+**Note**: These restrictions only apply to the `events` object. Other Google Calendar objects (if any) are not subject to these limits.
+
+---
+
+### 3.6 Snowflake Rules
+
+#### Rule: Snowflake only supports fullHistory backfill
+- **Severity**: ERROR
+- **Rule ID**: `snowflake-only-full-history`
+- **Provider**: `snowflake`
+- **Source**: `validator/provider_snowflake.go`
+- **Error constant**: `ErrSnowflakeBackfillDays`
+- **Description**: Snowflake integrations must use `fullHistory: true` for backfill; days-based backfill is not supported
+- **Rationale**: Snowflake's data architecture and querying model require full table scans; partial date-range backfills are not efficient or supported
+- **Example violation**:
+```yaml
+integrations:
+  - provider: snowflake
+    read:
+      objects:
+        - objectName: CUSTOMERS
+          destination: webhook
+          schedule: "0 */12 * * *"
+          backfill:
+            defaultPeriod:
+              days: 30  # ERROR - Snowflake requires fullHistory
+```
+- **Example valid**:
+```yaml
+integrations:
+  - provider: snowflake
+    read:
+      objects:
+        - objectName: CUSTOMERS
+          destination: webhook
+          schedule: "0 */12 * * *"
+          backfill:
+            defaultPeriod:
+              fullHistory: true  # Required for Snowflake
 ```
 
 ---
@@ -2205,12 +2463,56 @@ ErrNoInstallationOrGroupRefAndIntegrationNameCombination     // proxy.go
 
 ---
 
+### Rule Implementation Status
+
+This table tracks which validation rules have been implemented in the `amp-yaml-validator` library and references to the corresponding server-side validation code.
+
+| Rule ID | Rule Name | Status | Validator File | Server Reference | Notes |
+|---------|-----------|--------|----------------|------------------|-------|
+| **2.13 Duplicate Object Detection** |
+| `duplicate-read-object` | No duplicate objects in read.objects | ✅ Implemented | `validator/duplicate.go` | `server/shared/common/validate.go` | Detects duplicates and reports both locations |
+| `duplicate-write-object` | No duplicate objects in write.objects | ✅ Implemented | `validator/duplicate.go` | `server/shared/common/validate.go` | Same as read |
+| `duplicate-subscribe-object` | No duplicate objects in subscribe.objects | ✅ Implemented | `validator/duplicate.go` | `server/shared/common/validate.go` | Same as read |
+| **2.14 Subscribe Event Type Rules** |
+| `subscribe-minimum-events` | Subscribe object must have at least one event enabled | ✅ Implemented | `validator/subscribe_events.go` | `server/shared/common/config.go:77-151` | Checks createEvent, updateEvent, deleteEvent, associationChangeEvent |
+| **2.15 Field Mapping Naming Rules** |
+| `field-mapping-simple-names` | Field mappings use simple names (no bracket notation) | ℹ️ Informational | `validator/jsonpath.go` | N/A | Bracket notation intentionally not supported (design decision) |
+| **2.16 RequiredWatchFields Rules** |
+| `watch-fields-no-nesting` | RequiredWatchFields cannot contain nested paths | ✅ Implemented | `validator/subscribe_events.go`, `validator/jsonpath.go` | `server/shared/common/config.go` | Detects dots and brackets in field names |
+| **3.5 Google Calendar Rules** |
+| `google-calendar-no-full-history` | Google Calendar events cannot use fullHistory | ✅ Implemented | `validator/provider_google_calendar.go` | `server/shared/common/validate.go:74-77` | Only applies to events object |
+| `google-calendar-max-backfill` | Google Calendar events backfill max 28 days | ✅ Implemented | `validator/provider_google_calendar.go` | `server/shared/common/validate.go:74-77` | MaxGoogleCalendarBackfillDays = 28 |
+| **3.6 Snowflake Rules** |
+| `snowflake-only-full-history` | Snowflake only supports fullHistory backfill | ✅ Implemented | `validator/provider_snowflake.go` | `server/shared/common/validate.go` | Days-based backfill not allowed |
+
+**Legend**:
+- ✅ **Implemented**: Fully implemented and tested
+- ⚠️ **Partial**: Basic implementation exists, advanced features pending
+- ℹ️ **Informational**: Documented design decision or informational note (not enforced)
+- ❌ **Not Implemented**: Planned but not yet implemented
+- 🔄 **In Progress**: Currently being implemented
+
+**Implementation Notes**:
+- All implemented rules have corresponding test files in `validator/` with comprehensive test coverage
+- Test data files exist in `testdata/invalid/` and `testdata/valid/` directories
+- Server references point to the original validation logic in the Ampersand server codebase for maintainability
+
+---
+
 ## Document Version
 
-- **Version**: 1.0
-- **Last Updated**: 2025-10-12
-- **Based on**: Ampersand codebase analysis (60+ rules documented)
-- **Next Steps**: Implement amp-yaml-validator library using this specification
+- **Version**: 1.1
+- **Last Updated**: 2026-01-17
+- **Based on**: Ampersand codebase analysis (70+ rules documented)
+- **Changes in v1.1**:
+  - Added section 2.13: Duplicate Object Detection Rules
+  - Added section 2.14: Subscribe Event Type Rules
+  - Added section 2.15: JSONPath Validation Rules
+  - Added section 2.16: RequiredWatchFields Nested Path Rules
+  - Added section 3.5: Google Calendar Rules
+  - Added section 3.6: Snowflake Rules
+  - Added Rule Implementation Status table in Appendix B
+- **Implementation Status**: Core semantic validation rules implemented in amp-yaml-validator library
 
 ---
 

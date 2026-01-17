@@ -17,7 +17,8 @@ func validateBackfill(ctx *ValidationContext, backfill *openapi.Backfill, path s
 
 	// Validate struct using validator tags
 	validate := validator.New()
-	if err := validate.Struct(backfill); err != nil {
+	err := validate.Struct(backfill)
+	if err != nil {
 		ctx.AddErrorWithSuggestion(
 			fmt.Sprintf("%s: %v", types.ErrInvalidBackfill, err),
 			path,

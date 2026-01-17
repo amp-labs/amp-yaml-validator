@@ -1,0 +1,15 @@
+specVersion: 1.0.0
+integrations:
+  - provider: snowflake
+    read:
+      objects:
+        - objectName: CUSTOMERS
+          destination: webhook
+          schedule: "0 */12 * * *"
+          selectedFields:
+            ID: true
+            NAME: true
+            EMAIL: true
+          backfill:
+            defaultPeriod:
+              days: 30  # Invalid for Snowflake - must use fullHistory - should trigger error

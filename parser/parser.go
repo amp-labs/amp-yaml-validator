@@ -12,7 +12,8 @@ import (
 func ParseYAML(yamlBytes []byte) (*openapi.Manifest, PositionMap, DirectiveMap, error) {
 	// First pass: Build position map and extract directives from yaml.Node
 	var node yaml.Node
-	if err := yaml.Unmarshal(yamlBytes, &node); err != nil {
+	err := yaml.Unmarshal(yamlBytes, &node)
+	if err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to parse YAML: %w", err)
 	}
 
@@ -22,7 +23,8 @@ func ParseYAML(yamlBytes []byte) (*openapi.Manifest, PositionMap, DirectiveMap, 
 	// Second pass: Unmarshal into typed Manifest
 	// Use sigs.k8s.io/yaml which handles JSON tags (same as server)
 	var manifest openapi.Manifest
-	if err := sigsyaml.Unmarshal(yamlBytes, &manifest); err != nil {
+	err = sigsyaml.Unmarshal(yamlBytes, &manifest)
+	if err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to unmarshal into Manifest: %w", err)
 	}
 

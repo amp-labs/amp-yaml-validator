@@ -1,0 +1,15 @@
+specVersion: 1.0.0
+integrations:
+  - provider: googlecalendar
+    read:
+      objects:
+        - objectName: events
+          destination: webhook
+          schedule: "0 */12 * * *"
+          selectedFields:
+            summary: true
+            start: true
+            end: true
+          backfill:
+            defaultPeriod:
+              days: 30  # Exceeds 28-day limit - should trigger error

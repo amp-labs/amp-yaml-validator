@@ -1,0 +1,22 @@
+specVersion: 1.0.0
+integrations:
+  - provider: salesforce
+    read:
+      objects:
+        - objectName: Account
+          destination: webhook
+          schedule: "0 */12 * * *"
+          selectedFields:
+            Name: true
+            Email: true
+        - objectName: Contact
+          destination: webhook
+          schedule: "0 */12 * * *"
+          selectedFields:
+            FirstName: true
+            LastName: true
+        - objectName: Account  # Duplicate - should trigger error
+          destination: webhook
+          schedule: "0 */12 * * *"
+          selectedFields:
+            Industry: true

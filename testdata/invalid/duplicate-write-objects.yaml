@@ -1,0 +1,26 @@
+specVersion: 1.0.0
+integrations:
+  - provider: salesforce
+    write:
+      objects:
+        - objectName: Account
+          selectedFieldSettings:
+            Name:
+              writeOnCreate: always
+              writeOnUpdate: always
+            Industry:
+              writeOnCreate: always
+              writeOnUpdate: always
+        - objectName: Contact
+          selectedFieldSettings:
+            FirstName:
+              writeOnCreate: always
+              writeOnUpdate: always
+            LastName:
+              writeOnCreate: always
+              writeOnUpdate: always
+        - objectName: Account  # Duplicate - should trigger error
+          selectedFieldSettings:
+            Website:
+              writeOnCreate: always
+              writeOnUpdate: always

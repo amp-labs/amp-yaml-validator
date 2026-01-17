@@ -1,0 +1,14 @@
+specVersion: 1.0.0
+integrations:
+  - provider: salesforce
+    read:
+      objects:
+        - objectName: Account
+          destination: webhook
+          schedule: "0 */12 * * *"
+          selectedFields:
+            Name: true
+            Email: true
+          selectedFieldMappings:
+            Name: name
+            Email: contact[invalid]]  # Invalid bracket notation - should trigger error when JSONPath validation is fully implemented

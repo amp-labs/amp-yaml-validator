@@ -1,0 +1,17 @@
+specVersion: 1.0.0
+integrations:
+  - provider: salesforce
+    read:
+      objects:
+        - objectName: Account
+          destination: webhook
+          schedule: "0 */12 * * *"
+          selectedFields:
+            Name: true
+            Email: true
+    subscribe:
+      objects:
+        - objectName: Account
+          destination: webhook
+          inheritFieldsAndMapping: true
+          # No events enabled - should trigger error

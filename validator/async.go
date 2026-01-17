@@ -61,7 +61,8 @@ func validateDestinationReferences(ctx context.Context, valCtx *ValidationContex
 	for destName, path := range destinations {
 		if valCtx.DestinationChecker != nil {
 			// If a destination checker is provided, use it to validate
-			if err := valCtx.DestinationChecker.CheckDestination(ctx, destName); err != nil {
+			err := valCtx.DestinationChecker.CheckDestination(ctx, destName)
+			if err != nil {
 				valCtx.AddErrorWithSuggestion(
 					fmt.Sprintf("Destination %q does not exist or is not accessible: %v", destName, err),
 					path,

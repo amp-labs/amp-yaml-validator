@@ -93,6 +93,9 @@ func validateSubscribeObject(
 		)
 	}
 
+	// NEW: Validate that at least one event type is enabled
+	validateSubscribeEventTypes(valCtx, obj, objectPath)
+
 	// Validate update event if present
 	if obj.UpdateEvent != nil {
 		validateUpdateEvent(valCtx, obj.UpdateEvent, objectPath+".updateEvent")

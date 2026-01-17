@@ -1,13 +1,32 @@
-.PHONY: all
-all:
-	echo "No default target."
+.PHONY: help
+.DEFAULT_GOAL := help
+
+# Show available targets
+help:
+	@echo "amp-yaml-validator - Available targets:"
+	@echo ""
+	@echo "  test            Run all tests"
+	@echo "  test-pretty     Run tests with pretty output (gotestsum)"
+	@echo ""
+	@echo "  build           Build the CLI tool"
+	@echo "  build-all       Build for all platforms (linux, darwin, windows)"
+	@echo ""
+	@echo "  lint            Run linters without auto-fix"
+	@echo "  fix             Run formatters and linters with auto-fix"
+	@echo "  fix/sort        Run fix with sorted output"
+	@echo "  fix-markdown    Fix markdown files"
+	@echo "  format          Alias for 'fix'"
+	@echo ""
+	@echo "  help            Show this help message"
 
 # ====================
 # Formatting & linting
 # ====================
 .PHONY: lint
 lint:
-	golangci-lint run -c .golangci.yml
+	golangci-lint config verify && \
+	golangci-lint run -c .golangci.yml --max-issues-per-linter 0 --max-same-issues 0 && \
+	typos --config .typos.toml
 
 # Run a few autoformatters and print out unfixable errors
 # PRE-REQUISITES: install linters, see https://ampersand.slab.com/posts/engineering-onboarding-guide-environment-set-up-9v73t3l8#huik9-install-linters
@@ -16,7 +35,7 @@ lint:
 # For the wsl CLI, we manually run it against select repos, since it does not read from .golangci.yml and therefore cannot ignore directories.
 .PHONY: fix
 fix:
-	wsl --allow-cuddle-declarations --allow-trailing-comment --fix ./... && \
+	wsl --fix ./... && \
 		gci write . && \
 		golangci-lint run -c .golangci.yml --fix
 
@@ -36,6 +55,10 @@ format: fix
 .PHONY: test
 test:
 	go test -v ./...
+
+.PHONY: test-pretty
+test-pretty:
+	RUNNING_ENV=test go run gotest.tools/gotestsum@latest -- -v -gcflags="all=-N -l" ./...
 
 # ====================
 # Build

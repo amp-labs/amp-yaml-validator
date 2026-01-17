@@ -84,6 +84,11 @@ The library is organized into focused components:
 - **`read.go`**: Read action validation (objects, fields, schedules)
 - **`write.go`**: Write action validation
 - **`subscribe.go`**: Subscribe action validation (requires read, inheritFieldsAndMapping, watch fields)
+- **`subscribe_events.go`**: Subscribe event type validation (at least one event enabled, nested watch fields check)
+- **`duplicate.go`**: Duplicate object detection within same action (read/write/subscribe)
+- **`jsonpath.go`**: JSONPath validation and nested field detection (placeholder for amp-common/jsonpath integration)
+- **`provider_google_calendar.go`**: Google Calendar-specific validation (events backfill constraints)
+- **`provider_snowflake.go`**: Snowflake-specific validation (fullHistory requirement)
 - **`integration.go`**: Integration structure validation
 - **`provider.go`**: Provider-specific validation (capability checks, Salesforce limits, module validation)
 - **`async.go`**: Async error prevention validation (destination references, backfill risks, schedule frequency risks)
@@ -235,25 +240,43 @@ When no destination checker is provided (default):
 ### Test Organization
 ```
 validator/
-  schedule_test.go          - Schedule validation tests
-  delivery_test.go          - Delivery mode tests
-  backfill_test.go          - Backfill tests
-  subscribe_test.go         - Subscribe action tests
-  provider_test.go          - Provider capability tests
-  spec_version_test.go      - Spec version tests
-  always_enabled_test.go    - Always-enabled object tests
-  integration_test.go       - End-to-end integration tests
-  object_test.go            - Object validation tests
+  schedule_test.go                     - Schedule validation tests
+  delivery_test.go                     - Delivery mode tests
+  backfill_test.go                     - Backfill tests
+  subscribe_test.go                    - Subscribe action tests
+  subscribe_events_test.go             - Subscribe event type tests
+  duplicate_test.go                    - Duplicate object detection tests
+  provider_test.go                     - Provider capability tests
+  provider_google_calendar_test.go     - Google Calendar-specific tests
+  provider_snowflake_test.go           - Snowflake-specific tests
+  spec_version_test.go                 - Spec version tests
+  always_enabled_test.go               - Always-enabled object tests
+  integration_test.go                  - End-to-end integration tests
+  object_test.go                       - Object validation tests
 
 testdata/
   valid/                    - Valid amp.yaml samples for testing
     minimal.yaml
     full-featured.yaml
+    google-calendar-valid-backfill.yaml
+    snowflake-full-history.yaml
+    subscribe-all-event-types.yaml
+    field-mapping-bracket-notation.yaml
   invalid/                  - Invalid samples with specific errors
     schedule-too-frequent.yaml
     subscribe-without-read.yaml
+    subscribe-no-events.yaml
+    subscribe-nested-watch-fields.yaml
     salesforce-too-many-subscribe.yaml
     backfill-both-days-and-fullhistory.yaml
+    duplicate-read-objects.yaml
+    duplicate-write-objects.yaml
+    duplicate-subscribe-objects.yaml
+    google-calendar-full-history.yaml
+    google-calendar-backfill-too-long.yaml
+    snowflake-backfill-days.yaml
+    field-mapping-invalid-jsonpath.yaml
+    always-enabled-too-many-required.yaml
 ```
 
 ### Test Patterns
@@ -391,15 +414,22 @@ if integration.Module != nil {
 
 - **README.md**: User-facing documentation, API examples, feature overview
 - **ARCHITECTURE.md**: Detailed design decisions, implementation phases, parser approach
-- **VALIDATION_RULES.md**: Complete specification of all 60+ validation rules with examples
+- **VALIDATION_RULES.md**: Complete specification of all 69 validation rules with examples
 
 ## Development Status
 
-**Current Phase**: Phase 4 Complete (Async Error Prevention)
+**Current Phase**: Phase 5 Complete (Semantic Validation Enhancement)
 - ✅ Phase 1: Documentation and architecture design
 - ✅ Phase 2: Universal validation rules implementation
 - ✅ Phase 3: Provider-specific validation with catalog integration
 - ✅ Phase 4: Async error prevention validation
+- ✅ Phase 5: Semantic validation enhancement
+  - ✅ Duplicate object detection (read/write/subscribe)
+  - ✅ Subscribe event type validation (minimum one event required)
+  - ✅ Nested watch fields validation (no dots or brackets)
+  - ✅ Google Calendar backfill constraints (no fullHistory, max 28 days for events)
+  - ✅ Snowflake backfill requirements (fullHistory only)
+  - ✅ JSONPath validation utilities (nested field path detection)
 
 ## Key Dependencies
 
