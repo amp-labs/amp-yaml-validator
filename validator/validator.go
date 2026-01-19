@@ -181,6 +181,9 @@ func (v *Validator) runValidators(ctx context.Context, valCtx *ValidationContext
 	validateDuplicateObjects(valCtx) // NEW: Duplicate object detection
 	validateJSONPathRules(valCtx)    // NEW: JSONPath and nested field validation
 
+	// Resource validation (if checkers are available)
+	validateDestinationsExist(ctx, valCtx) // NEW: Destination existence validation
+
 	// Provider-specific validation
 	if !v.skipProviderValidation {
 		validateProviderSpecific(ctx, valCtx)

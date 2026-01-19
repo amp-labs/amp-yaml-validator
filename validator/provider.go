@@ -2,9 +2,11 @@ package validator
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
+	"github.com/amp-labs/amp-yaml-validator/checker"
 	"github.com/amp-labs/amp-yaml-validator/openapi"
 	"github.com/amp-labs/amp-yaml-validator/types"
 	"github.com/amp-labs/connectors/common"
@@ -22,6 +24,44 @@ func validateProviderSpecific(ctx context.Context, valCtx *ValidationContext) {
 	}
 }
 
+// validateProviderAppConfiguration validates that provider apps/OAuth credentials are configured.
+// This validation only runs if a ProviderAppChecker is provided via dependency injection.
+func validateProviderAppConfiguration(
+	ctx context.Context,
+	valCtx *ValidationContext,
+	integration openapi.Integration,
+	basePath string,
+) {
+	// Skip if no provider app checker available
+	if valCtx.ProviderAppChecker == nil {
+		return
+	}
+
+	// Check if provider app is configured
+	err := valCtx.ProviderAppChecker.CheckProviderApp(ctx, integration.Provider)
+	if err != nil {
+		// Check for specific error types
+		if errors.Is(err, checker.ErrProviderAppNotFound) {
+			valCtx.AddWarningWithSuggestion(
+				fmt.Sprintf("Provider app not configured for '%s'. OAuth will not work until credentials are added.",
+					integration.Provider),
+				basePath+".provider",
+				types.RuleProviderAppNotConfigured,
+				fmt.Sprintf("Create a provider app for '%s' with the required OAuth credentials and scopes",
+					integration.Provider),
+			)
+		} else {
+			// Other errors (network issues, auth failures, etc.)
+			valCtx.AddWarning(
+				fmt.Sprintf("Unable to verify provider app configuration for '%s': %v",
+					integration.Provider, err),
+				basePath+".provider",
+				types.RuleProviderAppCheckFailed,
+			)
+		}
+	}
+}
+
 // validateProviderForIntegration validates provider-specific rules for a single integration.
 func validateProviderForIntegration(
 	ctx context.Context,
@@ -33,6 +73,9 @@ func validateProviderForIntegration(
 	if !valCtx.HasCatalogAccess(ctx) {
 		return
 	}
+
+	// Validate provider app configuration if checker is available
+	validateProviderAppConfiguration(ctx, valCtx, integration, basePath)
 
 	// Validate provider capabilities
 	validateProviderCapabilities(ctx, valCtx, integration, basePath)

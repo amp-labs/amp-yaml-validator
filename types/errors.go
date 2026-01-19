@@ -80,6 +80,10 @@ const (
 	RuleProviderNotSupported        = "provider-not-supported"
 	RuleCatalogAccess               = "catalog-access"
 	RuleObjectExists                = "object-exists"
+	RuleProviderAppNotConfigured    = "provider-app-not-configured"
+	RuleProviderAppCheckFailed      = "provider-app-check-failed"
+	RuleDestinationNotFound         = "destination-not-found"
+	RuleDestinationCheckFailed      = "destination-check-failed"
 )
 
 // RuleDuplicateReadObject is the rule for duplicate read object detection.
