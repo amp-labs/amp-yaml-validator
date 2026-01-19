@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/amp-labs/amp-yaml-validator/checker"
-	"github.com/amp-labs/amp-yaml-validator/openapi"
 	"github.com/amp-labs/amp-yaml-validator/types"
 )
 
@@ -38,15 +37,7 @@ func validateDestinationsExist(ctx context.Context, valCtx *ValidationContext) {
 			}
 		}
 
-		// Check write objects
-		if integration.Write != nil && integration.Write.Objects != nil {
-			for j, obj := range *integration.Write.Objects {
-				if obj.Destination != "" {
-					path := fmt.Sprintf("%s.write.objects[%d].destination", basePath, j)
-					destinationRefs[obj.Destination] = append(destinationRefs[obj.Destination], path)
-				}
-			}
-		}
+		// Note: Write objects don't have destination fields - they inherit from read objects
 
 		// Check subscribe objects
 		if integration.Subscribe != nil && integration.Subscribe.Objects != nil {
