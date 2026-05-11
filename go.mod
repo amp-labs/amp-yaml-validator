@@ -3,7 +3,7 @@ module github.com/amp-labs/amp-yaml-validator
 go 1.25.1
 
 require (
-	github.com/adhocore/gronx v1.19.6
+	github.com/adhocore/gronx v1.19.7
 	github.com/amp-labs/connectors v0.0.0-20251010235100-8191ba72571c
 	github.com/go-playground/validator/v10 v10.30.1
 	github.com/oapi-codegen/runtime v1.1.2
