@@ -6,7 +6,7 @@ require (
 	github.com/adhocore/gronx v1.20.0
 	github.com/amp-labs/connectors v0.0.0-20251010235100-8191ba72571c
 	github.com/go-playground/validator/v10 v10.30.3
-	github.com/oapi-codegen/runtime v1.4.1
+	github.com/oapi-codegen/runtime v1.4.2
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
