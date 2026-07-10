@@ -374,4 +374,4 @@ See [CLAUDE.md](./CLAUDE.md) for detailed development patterns and examples.
 
 ## License
 
-Copyright © 2024 Ampersand Technologies, Inc.
+Copyright © 2026 Ampersand Technologies, Inc.
