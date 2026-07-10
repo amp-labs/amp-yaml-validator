@@ -71,6 +71,7 @@ The library is organized into focused components:
 - **`parser.go`**: Two-pass parsing using `gopkg.in/yaml.v3` (position tracking) and `sigs.k8s.io/yaml` (struct unmarshaling with JSON tags)
 - **`position.go`**: Position tracking types (`Position`, `PositionMap`)
 - **`path.go`**: YAML path construction utilities for error reporting (e.g., `$.integrations[0].read.objects[1].schedule`)
+- **`unknown.go`**: Reflection-based detection of orphan/unknown keys (`DetectUnknownKeys`) by walking the YAML node tree against the OpenAPI schema types
 
 #### `validator/` - Core validation logic
 - **`validator.go`**: Main orchestrator that runs all validation rules, supports functional options for configuration
@@ -86,6 +87,7 @@ The library is organized into focused components:
 - **`subscribe.go`**: Subscribe action validation (requires read, inheritFieldsAndMapping, watch fields)
 - **`subscribe_events.go`**: Subscribe event type validation (at least one event enabled, nested watch fields check)
 - **`duplicate.go`**: Duplicate object detection within same action (read/write/subscribe)
+- **`unknown_keys.go`**: Orphan/unknown key detection (warns about keys not in the schema; detection lives in `parser/unknown.go`)
 - **`jsonpath.go`**: JSONPath validation and nested field detection (placeholder for amp-common/jsonpath integration)
 - **`provider_google_calendar.go`**: Google Calendar-specific validation (events backfill constraints)
 - **`provider_snowflake.go`**: Snowflake-specific validation (fullHistory requirement)
@@ -277,6 +279,7 @@ testdata/
     snowflake-backfill-days.yaml
     field-mapping-invalid-jsonpath.yaml
     always-enabled-too-many-required.yaml
+    unknown-key.yaml
 ```
 
 ### Test Patterns
@@ -414,7 +417,7 @@ if integration.Module != nil {
 
 - **README.md**: User-facing documentation, API examples, feature overview
 - **ARCHITECTURE.md**: Detailed design decisions, implementation phases, parser approach
-- **VALIDATION_RULES.md**: Complete specification of all 69 validation rules with examples
+- **VALIDATION_RULES.md**: Complete specification of all 70 validation rules with examples
 
 ## Development Status
 

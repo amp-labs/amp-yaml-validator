@@ -990,6 +990,54 @@ subscribe:
 
 ---
 
+### 2.17 Unknown Key Detection Rules
+
+#### Rule: Keys must be part of the amp.yaml schema
+
+- **Severity**: WARNING
+- **Rule ID**: `unknown-key`
+- **Source**: `validator/unknown_keys.go`, `parser/unknown.go` (`DetectUnknownKeys`)
+- **Description**: Any mapping key that does not correspond to a field in the amp.yaml v1.0.0 schema is reported. Such "orphan" keys are silently dropped during unmarshaling, so they are almost always typos or misplaced configuration (e.g. `scheduel` instead of `schedule`, or a valid key nested under the wrong parent).
+- **Rationale**: The manifest is unmarshaled with `sigs.k8s.io/yaml`, which ignores unrecognized keys without error. Without this check, a misspelled field name simply has no effect, producing confusing "why is my config being ignored?" behavior at runtime. The warning surfaces the exact key and line so it can be fixed.
+- **Behavior notes**:
+  - Reports the key's own line/column (not the value's).
+  - An unknown parent key is reported once; detection does not descend into its (unvalidatable) subtree.
+  - Matching is case-insensitive, mirroring `encoding/json`, so case variants of a valid key are not flagged.
+  - Keys inside union-typed field entries (`requiredFields`/`optionalFields`) are checked against the union of both allowed shapes (existent field and field mapping).
+  - Arbitrary-key maps (`additionalProperties`) are not flagged.
+  - Suppressible per-key or per-subtree with an `amp:ignore` / `amp:ignore[unknown-key]` directive.
+- **Example violation**:
+```yaml
+specVersion: 1.0.0
+descrption: typo of "description"  # WARNING: unknown-key
+integrations:
+  - name: readSalesforce
+    provider: salesforce
+    read:
+      objects:
+        - objectName: account
+          destination: webhook
+          scheduel: "*/10 * * * *"  # WARNING: unknown-key (typo of "schedule")
+          requiredFields:
+            - feildName: name  # WARNING: unknown-key (typo of "fieldName")
+```
+- **Example valid**:
+```yaml
+specVersion: 1.0.0
+integrations:
+  - name: readSalesforce
+    provider: salesforce
+    read:
+      objects:
+        - objectName: account
+          destination: webhook
+          schedule: "*/10 * * * *"
+          requiredFields:
+            - fieldName: name
+```
+
+---
+
 ## 3. Provider-Specific Validation Rules
 
 These rules apply only to specific providers or depend on provider capabilities.
@@ -1786,6 +1834,7 @@ This machine-readable index maps all validation rules to their source implementa
 | always-enabled-mapping-limit | Required mappings ≤ builder mappings | ERROR | Universal | `ValidateFields` | `$.integrations[*].read.objects[*]` | `ErrAlwaysEnabledObjectHasMoreRequiredMappingsThanBuilderMappings` | more required than builder | required ≤ builder |
 | always-enabled-minimum-fields | Always-enabled objects need ≥1 field | ERROR | Universal | `ValidateFields` | `$.integrations[*].read.objects[*]` | - | alwaysEnabled with no fields | alwaysEnabled with ≥1 field |
 | minimum-fields-required | Each read object needs ≥1 field selected | ERROR | Universal | `ValidateFields` | `$.integrations[*].read.objects[*]` | `ErrMissingMinimumRequiredFields` | no fields selected | at least one field selected |
+| unknown-key | Key is not part of the amp.yaml schema (orphan/typo) | WARNING | Universal | `validateUnknownKeys` / `parser.DetectUnknownKeys` | `$.integrations[*].read.objects[*].<key>` | `RuleUnknownKey` | `scheduel: "*/10 * * * *"` | `schedule: "*/10 * * * *"` |
 | salesforce-subscribe-limit | Salesforce max 5 subscribe objects | ERROR | Provider | `validateSubscribeContent` (maxSalesforceSubscribeObjects=5) | `$.integrations[*].subscribe.objects` | `ErrTooManySubscribeObjects` | 6+ subscribe objects for Salesforce | ≤5 subscribe objects |
 | hubspot-scopes-required | HubSpot provider apps need scopes | ERROR | Provider | providerApp.go:58-62 | - |
 | provider-read-support | Provider must support read action | ERROR | Provider | Catalog Support.Read | - |

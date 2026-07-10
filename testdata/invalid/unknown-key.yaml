@@ -1,0 +1,12 @@
+specVersion: 1.0.0
+descrption: top-level key that is not part of the schema
+integrations:
+  - name: readSalesforce
+    provider: salesforce
+    read:
+      objects:
+        - objectName: account
+          destination: webhook
+          scheduel: "*/10 * * * *" # typo of "schedule"
+          requiredFields:
+            - feildName: name # typo of "fieldName"

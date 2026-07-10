@@ -116,14 +116,17 @@ const RuleAlwaysEnabledMappingCount = "always-enabled-mapping-count"
 // RuleAlwaysEnabledMinFields is the rule for always-enabled minimum fields.
 const RuleAlwaysEnabledMinFields = "always-enabled-minimum-fields"
 
+// RuleUnknownKey is the rule for keys that are not part of the amp.yaml schema.
+const RuleUnknownKey = "unknown-key"
+
 // Constants for validation rules.
 const (
-	CurrentSpecVersion            = "1.0.0" // The only supported spec version
-	MinScheduleIntervalMinutes    = 10      // Minimum schedule frequency in minutes
-	MinOnRequestPageSize          = 50      // Minimum page size for onRequest delivery
-	MaxOnRequestPageSize          = 500     // Maximum page size for onRequest delivery
-	MaxSalesforceSubscribeObjects = 5       // Maximum subscribe objects for Salesforce
-	MaxGoogleCalendarBackfillDays = 28      // Maximum backfill days for Google Calendar events
+	CurrentSpecVersion            = "1.0.0"  // The only supported spec version
+	MinScheduleIntervalMinutes    = 10       // Minimum schedule frequency in minutes
+	MinOnRequestPageSize          = 50       // Minimum page size for onRequest delivery
+	MaxOnRequestPageSize          = 500      // Maximum page size for onRequest delivery
+	MaxSalesforceSubscribeObjects = 5        // Maximum subscribe objects for Salesforce
+	MaxGoogleCalendarBackfillDays = 28       // Maximum backfill days for Google Calendar events
 	EventEnabledAlways            = "always" // Event enabled value for spec 1.0.0
-	MinAlwaysEnabledFields        = 3       // Minimum recommended required fields for always-enabled objects
+	MinAlwaysEnabledFields        = 3        // Minimum recommended required fields for always-enabled objects
 )

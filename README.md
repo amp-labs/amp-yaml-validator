@@ -9,6 +9,7 @@ The `amp-yaml-validator` validates `amp.yaml` files against spec version 1.0.0, 
 ### What it validates
 
 - **Schema validation**: Structural correctness, required fields, data types
+- **Orphan/unknown key detection**: Warns about keys that aren't part of the schema (typically typos) which would otherwise be silently ignored
 - **Business rules**: Schedule frequency, backfill constraints, field mappings, subscribe constraints
 - **Provider capabilities**: Verifies provider supports requested actions (read/write/subscribe/proxy)
 - **Provider-specific limits**: Salesforce CDC limits, Google Calendar backfill constraints, Snowflake requirements
@@ -16,7 +17,7 @@ The `amp-yaml-validator` validates `amp.yaml` files against spec version 1.0.0, 
 
 ## Key Features
 
-- **69 validation rules** covering all aspects of amp.yaml configuration
+- **70 validation rules** covering all aspects of amp.yaml configuration
 - **Precise error reporting** with line numbers and YAML paths (e.g., `$.integrations[0].read.objects[1].schedule`)
 - **Provider catalog integration** validates against actual provider capabilities from connectors library
 - **Flexible destination checking** with injectable interface for client-side or server-side validation
@@ -351,7 +352,7 @@ See [CLAUDE.md](./CLAUDE.md) for detailed development patterns and examples.
 
 ## Documentation
 
-- **[VALIDATION_RULES.md](./VALIDATION_RULES.md)**: Complete specification of all 69 validation rules with examples
+- **[VALIDATION_RULES.md](./VALIDATION_RULES.md)**: Complete specification of all 70 validation rules with examples
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)**: Detailed design decisions and implementation phases
 - **[CLAUDE.md](./CLAUDE.md)**: Developer guide for working with the codebase (for AI assistants and developers)
 

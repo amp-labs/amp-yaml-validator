@@ -117,11 +117,19 @@ func (v *Validator) ValidateBytes(ctx context.Context, yamlBytes []byte) (*types
 		return nil, err
 	}
 
+	// Detect keys present in the YAML that are not part of the schema (orphan keys).
+	// This is independent of struct unmarshaling, which silently drops such keys.
+	unknownKeys, err := parser.DetectUnknownKeys(yamlBytes)
+	if err != nil {
+		return nil, err
+	}
+
 	// Create validation context
 	valCtx := NewValidationContext(
 		manifest, posMap, dirMap, v.catalogProvider,
 		v.destinationChecker, v.providerAppChecker, v.rateLimitChecker,
 	)
+	valCtx.UnknownKeys = unknownKeys
 
 	// Run all validators
 	v.runValidators(ctx, valCtx)
@@ -178,6 +186,7 @@ func (v *Validator) runValidators(ctx context.Context, valCtx *ValidationContext
 	// Universal validation
 	validateSpecVersion(valCtx)
 	validateIntegrations(ctx, valCtx)
+	validateUnknownKeys(valCtx)      // NEW: Orphan/unknown key detection
 	validateDuplicateObjects(valCtx) // NEW: Duplicate object detection
 	validateJSONPathRules(valCtx)    // NEW: JSONPath and nested field validation
 

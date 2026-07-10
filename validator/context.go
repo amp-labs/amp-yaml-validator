@@ -20,6 +20,7 @@ type ValidationContext struct {
 	Manifest           *openapi.Manifest          // The parsed manifest to validate
 	PositionMap        parser.PositionMap         // Map of YAML paths to line/column positions
 	DirectiveMap       parser.DirectiveMap        // Map of amp:ignore directives for suppressing warnings
+	UnknownKeys        []parser.UnknownKey        // Keys present in the YAML but not part of the schema
 	Warnings           []types.ValidationIssue    // Accumulated validation issues
 	Errors             []types.ValidationIssue    // Accumulated validation issues
 	CatalogProvider    catalog.CatalogProvider    // Provider catalog access
