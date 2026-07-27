@@ -18,8 +18,6 @@ func validateAlwaysEnabledObject(ctx *ValidationContext, obj openapi.Integration
 			"Add at least one required field for this always-enabled object",
 		)
 	} else {
-		requiredFieldCount := len(*obj.RequiredFields)
-
 		// Iterate through required fields
 		for i, field := range *obj.RequiredFields {
 			// Check if it's an existent field type
@@ -32,17 +30,6 @@ func validateAlwaysEnabledObject(ctx *ValidationContext, obj openapi.Integration
 					"Remove mapToName from required fields for always-enabled objects. Use fieldName only.",
 				)
 			}
-		}
-
-		// Best practice: always-enabled objects should have at least 3 required fields for good UX
-		if requiredFieldCount < types.MinAlwaysEnabledFields {
-			ctx.AddWarningWithSuggestion(
-				types.WarnAlwaysEnabledMinFields,
-				path+".requiredFields",
-				types.RuleAlwaysEnabledMinFields,
-				fmt.Sprintf("Consider adding more required fields (currently %d, recommended minimum is %d) for better user experience",
-					requiredFieldCount, types.MinAlwaysEnabledFields),
-			)
 		}
 	}
 

@@ -50,9 +50,6 @@ const ErrSnowflakeBackfillDays = "Snowflake only supports fullHistory backfill"
 // ErrAlwaysEnabledMappingCount is returned when always-enabled object has more required fields than builder mappings.
 const ErrAlwaysEnabledMappingCount = "always-enabled object has more required fields than builder mappings"
 
-// WarnAlwaysEnabledMinFields is a warning when always-enabled objects should have at least 3 required fields.
-const WarnAlwaysEnabledMinFields = "always-enabled objects should have at least 3 required fields"
-
 // Rule identifiers for ValidationIssue.Rule field.
 const (
 	RuleSpecVersion                 = "spec-version"
@@ -113,9 +110,6 @@ const RuleSnowflakeBackfill = "snowflake-backfill"
 // RuleAlwaysEnabledMappingCount is the rule for always-enabled mapping count.
 const RuleAlwaysEnabledMappingCount = "always-enabled-mapping-count"
 
-// RuleAlwaysEnabledMinFields is the rule for always-enabled minimum fields.
-const RuleAlwaysEnabledMinFields = "always-enabled-minimum-fields"
-
 // RuleUnknownKey is the rule for keys that are not part of the amp.yaml schema.
 const RuleUnknownKey = "unknown-key"
 
@@ -128,5 +122,4 @@ const (
 	MaxSalesforceSubscribeObjects = 5        // Maximum subscribe objects for Salesforce
 	MaxGoogleCalendarBackfillDays = 28       // Maximum backfill days for Google Calendar events
 	EventEnabledAlways            = "always" // Event enabled value for spec 1.0.0
-	MinAlwaysEnabledFields        = 3        // Minimum recommended required fields for always-enabled objects
 )
