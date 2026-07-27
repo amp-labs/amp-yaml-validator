@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+// ErrNotSupported indicates that a checker implementation does not support the requested check
+// (e.g., a client-side implementation with no access to project data). Validators silently skip
+// the check when this error is returned - no warning or error is produced.
+var ErrNotSupported = errors.New("check not supported by this implementation")
+
 // ErrDestinationNotFound indicates that a destination does not exist or is not accessible.
 var ErrDestinationNotFound = errors.New("destination not found")
 
@@ -33,6 +38,8 @@ type DestinationChecker interface {
 	// CheckDestination verifies if a destination exists and is accessible.
 	// Returns nil if the destination exists and is valid.
 	// Returns ErrDestinationNotFound if the destination doesn't exist.
+	// Returns ErrNotSupported if the implementation cannot perform this check
+	// (validation is silently skipped).
 	// Returns other errors for unexpected failures (network issues, auth failures, etc.)
 	CheckDestination(ctx context.Context, destinationName string) error
 }
@@ -78,6 +85,8 @@ type ProviderAppChecker interface {
 	// CheckProviderApp verifies if a provider has valid credentials/OAuth apps configured.
 	// Returns nil if the provider app exists and is properly configured.
 	// Returns ErrProviderAppNotFound if the provider app doesn't exist.
+	// Returns ErrNotSupported if the implementation cannot perform this check
+	// (validation is silently skipped).
 	// Returns other errors for unexpected failures (network issues, auth failures, etc.)
 	CheckProviderApp(ctx context.Context, providerName string) error
 }
@@ -132,6 +141,8 @@ type RateLimitInfo struct {
 type RateLimitChecker interface {
 	// GetRateLimitInfo returns rate limit recommendations for a provider.
 	// Returns RateLimitInfo with recommended intervals.
+	// Returns ErrNotSupported if the implementation cannot provide rate limit info
+	// (validation is silently skipped).
 	// Returns error if provider is not recognized or info cannot be retrieved.
 	GetRateLimitInfo(ctx context.Context, providerName string) (*RateLimitInfo, error)
 }

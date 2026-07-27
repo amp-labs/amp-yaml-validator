@@ -60,6 +60,11 @@ func validateDestinationsExist(ctx context.Context, valCtx *ValidationContext) {
 func validateSingleDestination(ctx context.Context, valCtx *ValidationContext, destName string, paths []string) {
 	err := valCtx.DestinationChecker.CheckDestination(ctx, destName)
 	if err != nil {
+		// Checker doesn't support this check - skip validation silently
+		if errors.Is(err, checker.ErrNotSupported) {
+			return
+		}
+
 		// Check for specific error types
 		if errors.Is(err, checker.ErrDestinationNotFound) {
 			for _, path := range paths {

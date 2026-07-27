@@ -28,15 +28,8 @@ func validateObjectNameCommon(
 	// Try to get object list from catalog
 	objects, err := valCtx.CatalogProvider.ListObjects(ctx, provider, module)
 
-	// If catalog doesn't support object enumeration, add a warning
+	// If catalog doesn't support object enumeration, skip validation silently
 	if err != nil && errors.Is(err, catalog.ErrNotSupported) {
-		valCtx.AddWarningWithSuggestion(
-			"Object name validation skipped (catalog does not support object enumeration)",
-			path,
-			types.RuleCatalogAccess,
-			"Consider manually verifying that this object is supported by the provider",
-		)
-
 		return
 	}
 

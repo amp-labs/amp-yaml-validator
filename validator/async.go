@@ -2,10 +2,12 @@ package validator
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/adhocore/gronx"
+	"github.com/amp-labs/amp-yaml-validator/checker"
 	"github.com/amp-labs/amp-yaml-validator/types"
 )
 
@@ -62,7 +64,7 @@ func validateDestinationReferences(ctx context.Context, valCtx *ValidationContex
 		if valCtx.DestinationChecker != nil {
 			// If a destination checker is provided, use it to validate
 			err := valCtx.DestinationChecker.CheckDestination(ctx, destName)
-			if err != nil {
+			if err != nil && !errors.Is(err, checker.ErrNotSupported) {
 				valCtx.AddErrorWithSuggestion(
 					fmt.Sprintf("Destination %q does not exist or is not accessible: %v", destName, err),
 					path,

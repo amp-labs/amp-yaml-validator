@@ -40,6 +40,11 @@ func validateProviderAppConfiguration(
 	// Check if provider app is configured
 	err := valCtx.ProviderAppChecker.CheckProviderApp(ctx, integration.Provider)
 	if err != nil {
+		// Checker doesn't support this check - skip validation silently
+		if errors.Is(err, checker.ErrNotSupported) {
+			return
+		}
+
 		// Check for specific error types
 		if errors.Is(err, checker.ErrProviderAppNotFound) {
 			valCtx.AddWarningWithSuggestion(
