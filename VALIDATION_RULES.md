@@ -247,11 +247,11 @@ subscribe:
   objects: []  # Empty list not allowed
 ```
 
-#### Rule: inheritFieldsAndMapping must be true for all subscribe objects
+#### Rule: inheritFieldsAndMapping must be true for subscribe objects with events
 - **Severity**: ERROR
 - **Source**: `validateSubscribeContent` function in `server/shared/common/validate.go` (lines 143-145 as reference hint)
 - **Error constant**: `ErrSubscribeInheritFieldsAndMapping`
-- **Description**: In spec version 1.0.0, all subscribe objects must have `inheritFieldsAndMapping: true`. Independent field configuration for subscribe is not supported in v1.
+- **Description**: In spec version 1.0.0, subscribe objects that define `createEvent`, `updateEvent`, `deleteEvent`, or `associationChangeEvent` must have `inheritFieldsAndMapping: true`. Independent field configuration for subscribe is not supported in v1. Objects with no events (base definitions) and pure `otherEvents` (passThrough) subscriptions have nothing to map and are exempt, matching the server's revision validation.
 - **Rationale**: v1 simplifies configuration by requiring subscribe to use the same field configuration as the corresponding read object
 - **Example violation**:
 ```yaml
@@ -897,21 +897,20 @@ integrations:
 
 ### 2.14 Subscribe Event Type Rules
 
-#### Rule: Subscribe object must have at least one event type enabled
-- **Severity**: ERROR
+#### Rule: Subscribe object with no event type enabled warns
+- **Severity**: WARNING
 - **Rule ID**: `subscribe-minimum-events`
 - **Source**: `validator/subscribe_events.go`
 - **Error constant**: `ErrNoSubscribeEvents`
-- **Description**: Every subscribe object must have at least one event type enabled: `createEvent`, `updateEvent`, `deleteEvent`, or `associationChangeEvent`
-- **Rationale**: A subscribe object with no events enabled serves no purpose and would not generate any webhooks or data flow
-- **Example violation**:
+- **Description**: A subscribe object with no event type enabled (`createEvent`, `updateEvent`, `deleteEvent`, `associationChangeEvent`, or `otherEvents`) produces a warning
+- **Rationale**: Such an object is a valid base definition: it only supplies defaults (such as `destination`) and subscribes to nothing until an installation config enables an event. The warning keeps an accidentally event-less object visible; suppress it with an `amp:ignore` directive when the base definition is intentional
+- **Example warning**:
 ```yaml
 subscribe:
   objects:
     - objectName: Account
       destination: webhook
-      inheritFieldsAndMapping: true
-      # No events enabled - ERROR
+      # No events enabled - WARNING (base definition; installations opt in via config)
 ```
 - **Example valid**:
 ```yaml
@@ -2522,7 +2521,7 @@ This table tracks which validation rules have been implemented in the `amp-yaml-
 | `duplicate-write-object` | No duplicate objects in write.objects | ✅ Implemented | `validator/duplicate.go` | `server/shared/common/validate.go` | Same as read |
 | `duplicate-subscribe-object` | No duplicate objects in subscribe.objects | ✅ Implemented | `validator/duplicate.go` | `server/shared/common/validate.go` | Same as read |
 | **2.14 Subscribe Event Type Rules** |
-| `subscribe-minimum-events` | Subscribe object must have at least one event enabled | ✅ Implemented | `validator/subscribe_events.go` | `server/shared/common/config.go:77-151` | Checks createEvent, updateEvent, deleteEvent, associationChangeEvent |
+| `subscribe-minimum-events` | Subscribe object with no event enabled warns (valid as a base definition) | ✅ Implemented (WARNING) | `validator/subscribe_events.go` | `server/shared/common/config.go:77-151` | Checks createEvent, updateEvent, deleteEvent, associationChangeEvent |
 | **2.15 Field Mapping Naming Rules** |
 | `field-mapping-simple-names` | Field mappings use simple names (no bracket notation) | ℹ️ Informational | `validator/jsonpath.go` | N/A | Bracket notation intentionally not supported (design decision) |
 | **2.16 RequiredWatchFields Rules** |
