@@ -114,12 +114,42 @@ func TestValidateSubscribe(t *testing.T) {
 							ObjectName:              "Account",
 							Destination:             "webhook",
 							InheritFieldsAndMapping: false,
+							CreateEvent: &openapi.CreateEvent{
+								Enabled: func() *openapi.CreateEventEnabled {
+									e := openapi.CreateEventEnabledAlways
+
+									return &e
+								}(),
+							},
 						},
 					},
 				},
 			},
 			wantErrors:   1,
 			expectedRule: types.RuleSubscribeInheritFields,
+		},
+		{
+			name: "subscribe base definition with no events and no inheritFieldsAndMapping",
+			integration: openapi.Integration{
+				Provider: "salesforce",
+				Read: &openapi.IntegrationRead{
+					Objects: &[]openapi.IntegrationObject{
+						{ObjectName: "Account"},
+					},
+				},
+				Subscribe: &openapi.IntegrationSubscribe{
+					Objects: &[]openapi.IntegrationSubscribeObject{
+						{
+							ObjectName:  "Account",
+							Destination: "webhook",
+							// No events and no inheritFieldsAndMapping: a base definition
+							// supplying only defaults; installations opt in via config.
+						},
+					},
+				},
+			},
+			wantErrors:   0,
+			expectedRule: "",
 		},
 		{
 			name: "subscribe with valid updateEvent - watchFieldsAuto all",
@@ -371,6 +401,13 @@ func TestValidateSubscribeLineNumbers(t *testing.T) {
 							ObjectName:              "Account",
 							Destination:             "webhook",
 							InheritFieldsAndMapping: false,
+							CreateEvent: &openapi.CreateEvent{
+								Enabled: func() *openapi.CreateEventEnabled {
+									e := openapi.CreateEventEnabledAlways
+
+									return &e
+								}(),
+							},
 						},
 					},
 				},

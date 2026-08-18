@@ -21,6 +21,7 @@ func TestValidateSubscribeEventTypes(t *testing.T) {
 		name         string
 		obj          openapi.IntegrationSubscribeObject
 		wantErrors   int
+		wantWarnings int
 		expectedRule string
 	}{
 		{
@@ -90,17 +91,18 @@ func TestValidateSubscribeEventTypes(t *testing.T) {
 			expectedRule: "",
 		},
 		{
-			name: "invalid - no events enabled",
+			name: "warning - base definition with no events enabled",
 			obj: openapi.IntegrationSubscribeObject{
 				ObjectName:              "Account",
 				InheritFieldsAndMapping: true,
-				// No events specified
+				// No events specified: valid base definition, warns
 			},
-			wantErrors:   1,
+			wantErrors:   0,
+			wantWarnings: 1,
 			expectedRule: types.RuleSubscribeMinimumEvents,
 		},
 		{
-			name: "invalid - events exist but no enabled field set",
+			name: "warning - events exist but no enabled field set",
 			obj: openapi.IntegrationSubscribeObject{
 				ObjectName:  "Account",
 				CreateEvent: &openapi.CreateEvent{
@@ -111,7 +113,8 @@ func TestValidateSubscribeEventTypes(t *testing.T) {
 				},
 				InheritFieldsAndMapping: true,
 			},
-			wantErrors:   1,
+			wantErrors:   0,
+			wantWarnings: 1,
 			expectedRule: types.RuleSubscribeMinimumEvents,
 		},
 		{
@@ -129,8 +132,8 @@ func TestValidateSubscribeEventTypes(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
 			posMap := parser.NewPositionMap()
@@ -138,13 +141,20 @@ func TestValidateSubscribeEventTypes(t *testing.T) {
 			manifest := &openapi.Manifest{SpecVersion: types.CurrentSpecVersion}
 			valCtx := NewValidationContext(manifest, posMap, dirMap, nil, nil, nil, nil)
 
-			validateSubscribeEventTypes(valCtx, tt.obj, "$.integrations[0].subscribe.objects[0]")
+			validateSubscribeEventTypes(valCtx, testCase.obj, "$.integrations[0].subscribe.objects[0]")
 
 			errors := valCtx.GetErrors()
-			require.Len(t, errors, tt.wantErrors, "unexpected number of errors")
+			require.Len(t, errors, testCase.wantErrors, "unexpected number of errors")
 
-			if tt.expectedRule != "" && len(errors) > 0 {
-				require.Equal(t, tt.expectedRule, errors[0].Rule, "unexpected rule type")
+			warnings := valCtx.GetWarnings()
+			require.Len(t, warnings, testCase.wantWarnings, "unexpected number of warnings")
+
+			if testCase.expectedRule != "" && len(errors) > 0 {
+				require.Equal(t, testCase.expectedRule, errors[0].Rule, "unexpected rule type")
+			}
+
+			if testCase.expectedRule != "" && len(warnings) > 0 {
+				require.Equal(t, testCase.expectedRule, warnings[0].Rule, "unexpected rule type")
 			}
 		})
 	}
