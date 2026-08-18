@@ -26,8 +26,10 @@ const ErrDuplicateWriteObject = "duplicate object found in write.objects"
 // ErrDuplicateSubscribeObject is returned when duplicate object found in subscribe.objects.
 const ErrDuplicateSubscribeObject = "duplicate object found in subscribe.objects"
 
-// ErrNoSubscribeEvents is returned when subscribe object must have at least one event type enabled.
-const ErrNoSubscribeEvents = "subscribe object must have at least one event type enabled"
+// ErrNoSubscribeEvents is surfaced as a warning when a subscribe object has no event type
+// enabled. Such an object is a valid base definition: it only supplies defaults (such as
+// destination) and installations enable events via their config.
+const ErrNoSubscribeEvents = "subscribe object has no event type enabled"
 
 // ErrNestedWatchField is returned when requiredWatchFields cannot contain nested paths.
 const ErrNestedWatchField = "requiredWatchFields cannot contain nested paths"

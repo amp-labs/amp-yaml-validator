@@ -7,20 +7,24 @@ import (
 	"github.com/amp-labs/amp-yaml-validator/types"
 )
 
-// validateSubscribeEventTypes validates that subscribe objects have at least one event type enabled.
-// This ensures subscribe configurations are meaningful and will actually receive events.
+// validateSubscribeEventTypes validates the event configuration of a subscribe object.
+// An object with no event types is allowed as a base definition: it only supplies defaults
+// (such as destination) and subscribes to nothing until an installation config enables an
+// event. It is surfaced as a warning so an accidentally event-less object is still visible.
 func validateSubscribeEventTypes(
 	valCtx *ValidationContext,
 	obj openapi.IntegrationSubscribeObject,
 	objPath string,
 ) {
-	// Check if at least one event type is enabled
+	// Warn if no event type is enabled
 	if !hasAnySubscribeEventEnabled(obj) {
-		valCtx.AddErrorWithSuggestion(
+		valCtx.AddWarningWithSuggestion(
 			types.ErrNoSubscribeEvents,
 			objPath,
 			types.RuleSubscribeMinimumEvents,
-			"Enable at least one event type: createEvent, updateEvent, deleteEvent, or associationChangeEvent",
+			"No events are enabled by default; this object only provides defaults such as destination, "+
+				"and installations must enable events via their config. To subscribe by default, add "+
+				"createEvent, updateEvent, deleteEvent, or associationChangeEvent with enabled: always",
 		)
 	}
 

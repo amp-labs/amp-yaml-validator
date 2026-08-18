@@ -83,8 +83,13 @@ func validateSubscribeObject(
 		)
 	}
 
-	// Check that inheritFieldsAndMapping is true (v1 requirement)
-	if !obj.InheritFieldsAndMapping {
+	// Check that inheritFieldsAndMapping is true (v1 requirement). Only required when the
+	// object defines create/update/delete/associationChange events, matching the server's
+	// revision validation: pure otherEvents (passThrough) subscriptions deliver raw payloads,
+	// and base definitions with no events have nothing to map.
+	needsFields := obj.CreateEvent != nil || obj.UpdateEvent != nil ||
+		obj.DeleteEvent != nil || obj.AssociationChangeEvent != nil
+	if needsFields && !obj.InheritFieldsAndMapping {
 		valCtx.AddErrorWithSuggestion(
 			types.ErrSubscribeInheritFieldsAndMapping,
 			objectPath+".inheritFieldsAndMapping",
