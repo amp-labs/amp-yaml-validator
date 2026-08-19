@@ -1,6 +1,6 @@
 github.com/RaveNoX/go-jsoncommentstrip v1.0.0/go.mod h1:78ihd09MekBnJnxpICcwzCMzGrKSKYe4AqU6PDYYpjk=
-github.com/adhocore/gronx v1.20.0 h1:PD13Mo0wekkZ7ZZR9yb1TqeqTfybs7/K3ez9DmjQwEs=
-github.com/adhocore/gronx v1.20.0/go.mod h1:7oUY1WAU8rEJWmAxXR2DN0JaO4gi9khSgKjiRypqteg=
+github.com/adhocore/gronx v1.20.1 h1:knBhN6BrPz5zUI/S9xKAkXVHdojISoF0HyC5NuVrtG4=
+github.com/adhocore/gronx v1.20.1/go.mod h1:7oUY1WAU8rEJWmAxXR2DN0JaO4gi9khSgKjiRypqteg=
 github.com/amp-labs/amp-common v0.0.0-20260707211901-527fea45abf2 h1:dB/G6GhDAIgHd7/d+VXM/TJRrJNx4+FfwAOrKVmWWxY=
 github.com/amp-labs/amp-common v0.0.0-20260707211901-527fea45abf2/go.mod h1:7O1Z5z2NC0E6o1NJ8fG58RqjKodzv6i1se8kMSo3H5U=
 github.com/amp-labs/connectors v0.0.0-20260709182246-d7debc759a25 h1:BB59qykwmWJjtvzC4943m33bjX7m3V/l8PJQb7WRLSQ=
