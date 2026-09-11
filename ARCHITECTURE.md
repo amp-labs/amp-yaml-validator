@@ -1285,7 +1285,7 @@ func WithProviderCatalog(catalog providers.Catalog) Option {
 // go.mod
 module github.com/amp-labs/amp-yaml-validator
 
-go 1.21
+go 1.27.1
 
 require (
     github.com/adhocore/gronx v1.6.3                    // Cron validation
